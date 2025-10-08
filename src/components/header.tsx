@@ -193,7 +193,7 @@ export default function Header() {
                                     target="_blank"
                                     rel="noopener nofollow"
                                     className="rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 bg-primary text-dark hover:bg-neutral-900 hover:text-primary">
-                                    Join Now
+                                    Join the Waitlist
                                 </Link>
                             </div>
 
