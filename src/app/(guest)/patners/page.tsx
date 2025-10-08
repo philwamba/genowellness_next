@@ -1,4 +1,5 @@
 import ComingSoon from '@/components/coming-soon'
+import CTA from '@/components/cta'
 
 export default function Page() {
     return (

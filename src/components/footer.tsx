@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { BsFacebook, BsDribbble, BsLinkedin, BsTwitterX } from 'react-icons/bs'
 
 export default function Footer() {
     const year = new Date().getFullYear()
@@ -80,9 +81,9 @@ export default function Footer() {
                                     </li>
                                     <li>
                                         <Link
-                                            href="/brand-allies"
+                                            href="/patners"
                                             className="hover:text-primary text-white transition-all duration-300">
-                                            Our Brand Allies
+                                            Patners
                                         </Link>
                                     </li>
                                 </ul>
@@ -90,7 +91,7 @@ export default function Footer() {
 
                             {/* Column 2 */}
                             <div>
-                                <div className="mb-5">
+                                {/* <div className="mb-5">
                                     <ul className="flex flex-col justify-start gap-2.5 leading-normal">
                                         <li>
                                             <Link
@@ -107,13 +108,13 @@ export default function Footer() {
                                             </Link>
                                         </li>
                                     </ul>
-                                </div>
+                                </div> */}
 
                                 <div>
                                     <ul className="flex flex-col justify-start gap-2.5 leading-normal">
                                         <li>
                                             <Link
-                                                href="/news-events"
+                                                href="/resources/news-events"
                                                 className="hover:text-primary text-white transition-all duration-300">
                                                 News &amp; Events
                                             </Link>
@@ -148,7 +149,7 @@ export default function Footer() {
                     {/* Contact / Social (unchanged UI structure) */}
                     <div className="lg:col-span-2">
                         <h4 className="text-1.5xl mb-5 text-white">
-                            Contact us
+                            Contact Us
                         </h4>
                         <div>
                             {/* <p className="mb-3.75 text-sm text-white md:text-base">
@@ -177,26 +178,37 @@ export default function Footer() {
                                     <Link
                                         href="https://facebook.com"
                                         aria-label="Facebook"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex">
-                                        <i className="iconify tabler--brand-meta size-5 text-white transform transition duration-300 hover:scale-110" />
+                                        <BsFacebook className="size-5 text-white transform transition duration-300 hover:scale-110" />
                                     </Link>
+
                                     <Link
                                         href="https://dribbble.com"
                                         aria-label="Dribbble"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex">
-                                        <i className="iconify tabler--brand-dribbble size-5 text-white transform transition duration-300 hover:scale-110" />
+                                        <BsDribbble className="size-5 text-white transform transition duration-300 hover:scale-110" />
                                     </Link>
+
                                     <Link
                                         href="https://linkedin.com"
                                         aria-label="LinkedIn"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex">
-                                        <i className="iconify tabler--brand-linkedin size-5 text-white transform transition duration-300 hover:scale-110" />
+                                        <BsLinkedin className="size-5 text-white transform transition duration-300 hover:scale-110" />
                                     </Link>
+
                                     <Link
                                         href="https://x.com"
                                         aria-label="X"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                         className="flex">
-                                        <i className="iconify tabler--brand-x size-5 text-white transform transition duration-300 hover:scale-110" />
+                                        <BsTwitterX className="size-5 text-white transform transition duration-300 hover:scale-110" />
                                     </Link>
                                 </div>
                             </div>

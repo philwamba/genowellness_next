@@ -2,7 +2,7 @@ import ComingSoon from '@/components/coming-soon'
 
 export default function Page() {
     return (
-        <div className="bg-white">
+        <div className="min-h-screen bg-white">
             <ComingSoon />
 
             {/* CTA */}
@@ -10,3 +10,4 @@ export default function Page() {
         </div>
     )
 }
+
