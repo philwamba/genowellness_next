@@ -39,20 +39,20 @@ export default function KeyFeaturesSection() {
 
                                 <div className="flex items-end relative">
                                     <Image
-                                        src="/1-LlsmceSN.png"
+                                        src="/images/insights-preview.jpg"
                                         alt="GENO Wellness insights preview"
                                         width={640}
                                         height={420}
                                         className="rounded-2xl flex"
                                         priority
                                     />
-                                    <Image
+                                    {/* <Image
                                         src="/2-BXjLFFfl.svg"
                                         alt="Decorative overlay"
                                         width={200}
                                         height={200}
                                         className="absolute md:block md:-start-7.5 bottom-auto lg:top-22.5 hidden"
-                                    />
+                                    /> */}
                                 </div>
                             </div>
                         </div>
