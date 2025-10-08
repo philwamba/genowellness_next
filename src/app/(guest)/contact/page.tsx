@@ -1,3 +1,12 @@
+import ComingSoon from '@/components/coming-soon'
+
 export default function Page() {
-    return <div className="min-h-screen bg-white"></div>
+    return (
+        <div className="bg-white">
+            <ComingSoon />
+
+            {/* CTA */}
+            {/* <CTA /> */}
+        </div>
+    )
 }
