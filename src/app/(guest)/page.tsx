@@ -2,6 +2,7 @@ import Image from 'next/image'
 import HeroSection from '@/components/hero'
 import QuickStartSection from '@/components/start'
 import KeyFeaturesSection from '@/components/features'
+import Link from 'next/link'
 
 export default function Home() {
     return (
@@ -14,6 +15,7 @@ export default function Home() {
                 {/* Quick Start Section */}
                 <QuickStartSection />
 
+                {/* Features Section */}
                 <KeyFeaturesSection />
 
                 {/* Background Image */}
@@ -44,24 +46,13 @@ export default function Home() {
                                 </p>
 
                                 <div className="flex gap-4">
-                                    <a href="#" className="inline-block">
-                                        <Image
-                                            src="/images/app-store.png"
-                                            alt="Download on the App Store"
-                                            width={180}
-                                            height={60}
-                                            className="h-14 w-auto"
-                                        />
-                                    </a>
-                                    <a href="#" className="inline-block">
-                                        <Image
-                                            src="/images/play-store.png"
-                                            alt="Get it on Google Play"
-                                            width={180}
-                                            height={60}
-                                            className="h-14 w-auto"
-                                        />
-                                    </a>
+                                    <Link
+                                        href="https://forms.gle/Peq5jNjPiii38LLd9"
+                                        target="_blank"
+                                        rel="noopener nofollow"
+                                        className="rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 bg-primary text-dark hover:bg-neutral-900 hover:text-primary">
+                                        Join the Waitlist
+                                    </Link>
                                 </div>
                             </div>
                         </div>

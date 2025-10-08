@@ -20,9 +20,11 @@ export default function HeroSection() {
                         </p>
 
                         <Link
-                            href="/join"
+                            href="https://forms.gle/Peq5jNjPiii38LLd9"
+                            target="_blank"
+                            rel="noopener nofollow"
                             className="py-3.5 md:px-7.5 px-6 inline-flex bg-white font-medium rounded-2xl text-dark transition-all duration-300 hover:bg-primary">
-                            Join the waitlist
+                            Join the Waitlist
                         </Link>
 
                         <div className="flex gap-4 mt-8">

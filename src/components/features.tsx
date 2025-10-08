@@ -142,13 +142,15 @@ export default function KeyFeaturesSection() {
                 <div className="flex md:justify-center gap-2.5 mt-10 flex-wrap justify-start">
                     <i className="iconify solar--dialog-2-bold size-5.5 text-dark" />
                     <div className="text-dark fs-base">
-                        Questions about GENO Wellness?
+                        Be among the first to try GENO Wellness when it launches.
                     </div>
 
                     <a
-                        href="/contact"
+                        href="https://forms.gle/Peq5jNjPiii38LLd9"
+                        target="_blank"
+                        rel="noopener nofollow"
                         className="flex items-center gap-1 text-dark font-medium">
-                        <div className="underline gap-1">Let&apos;s chat</div>
+                        <div className="underline gap-1">Join the Waitlist</div>
                         <i className="iconify tabler--arrow-right size-6" />
                     </a>
                 </div>

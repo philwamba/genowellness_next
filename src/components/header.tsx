@@ -3,273 +3,234 @@
 import { Fragment, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
+import {
+    Dialog,
+    Disclosure,
+    Menu,
+    MenuButton,
+    MenuItem,
+    MenuItems,
+    Popover,
+    PopoverButton,
+    PopoverPanel,
+    Transition,
+} from '@headlessui/react'
 import { FiChevronDown, FiMenu, FiX } from 'react-icons/fi'
+import { BsArrowRight } from 'react-icons/bs'
 
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false)
 
     return (
-        <header className="bg-white sticky transition-all text-white top-0 inset-x-0 w-screen z-20 duration-300">
-            <div className="container">
-                <div className="flex items-center justify-between py-2.5 lg:py-4.5">
-                    {/* Logo */}
-                    <div className="text-lg font-bold">
-                        <Link href="/" aria-label="GENO Wellness Hub">
-                            <Image
-                                src="/logo.png"
-                                alt="Logo"
-                                className="h-8.5 lg:h-9 w-auto"
-                                width={160}
-                                height={36}
-                                priority
-                            />
-                        </Link>
-                    </div>
-
-                    {/* Desktop Nav */}
-                    <nav
-                        id="navbar"
-                        className="lg:flex hidden justify-center gap-5">
-                        {/* Home (single) */}
-                        <Link
-                            href="/"
-                            className="text-dark flex items-center py-2.5 font-medium">
-                            Home
-                        </Link>
-
-                        {/* For Individuals */}
-                        <Menu
-                            as="div"
-                            className="m-1 relative inline-flex transition-all duration-300">
-                            <Menu.Button className="cursor-pointer text-dark flex items-center py-2.5 font-medium">
-                                For Individuals
-                                <FiChevronDown
-                                    className="ps-5 h-4 w-4"
-                                    aria-hidden="true"
-                                />
-                            </Menu.Button>
-
-                            <Transition
-                                as={Fragment}
-                                enter="transition ease-out duration-150"
-                                enterFrom="opacity-0 -translate-y-1"
-                                enterTo="opacity-100 translate-y-0"
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100 translate-y-0"
-                                leaveTo="opacity-0 -translate-y-1">
-                                <Menu.Items className="absolute left-0 mt-2 w-60 origin-top-left rounded-2xl bg-white border border-neutral-200 focus:outline-none">
-                                    <div className="p-5">
-                                        <MenuLink
-                                            href="/individuals/wellness-plans"
-                                            label="Wellness Plans"
-                                        />
-                                        <MenuLink
-                                            href="/individuals/coaching"
-                                            label="1-on-1 Coaching"
-                                        />
-                                        <MenuLink
-                                            href="/individuals/resources"
-                                            label="Self-Care Library"
-                                        />
-                                    </div>
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-
-                        {/* For Corporate */}
-                        <Menu
-                            as="div"
-                            className="m-1 relative inline-flex transition-all duration-300">
-                            <Menu.Button className="cursor-pointer text-dark flex items-center py-2.5 font-medium">
-                                For Corporate
-                                <FiChevronDown
-                                    className="ps-5 h-4 w-4"
-                                    aria-hidden="true"
-                                />
-                            </Menu.Button>
-
-                            <Transition
-                                as={Fragment}
-                                enter="transition ease-out duration-150"
-                                enterFrom="opacity-0 -translate-y-1"
-                                enterTo="opacity-100 translate-y-0"
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100 translate-y-0"
-                                leaveTo="opacity-0 -translate-y-1">
-                                <Menu.Items className="absolute left-0 mt-2 w-[560px] origin-top-left rounded-2xl bg-white border border-neutral-200 focus:outline-none">
-                                    <div className="grid grid-cols-2 p-5 gap-5">
-                                        <div>
-                                            <Image
-                                                src="/corporate-teaser.jpg" // optional illustration
-                                                alt=""
-                                                className="rounded-2xl w-62.5 h-auto"
-                                                width={400}
-                                                height={260}
-                                            />
-                                        </div>
-                                        <div className="flex flex-col justify-center gap-2.5 py-5">
-                                            <Link
-                                                href="/corporate/onboarding"
-                                                className="flex items-center gap-1.25 p-4 transition-all duration-300 hover:bg-body-bg rounded-2xl">
-                                                <span className="text-black text-2xl">
-                                                    🏁
-                                                </span>
-                                                <div>
-                                                    <div className="text-black">
-                                                        Seamless onboarding
-                                                    </div>
-                                                    <p className="text-dark text-sm">
-                                                        Quick, easy setup.
-                                                    </p>
-                                                </div>
-                                            </Link>
-                                            <Link
-                                                href="/corporate/programs"
-                                                className="flex items-center gap-1.25 p-4 transition-all duration-300 hover:bg-body-bg rounded-2xl">
-                                                <span className="text-black text-2xl">
-                                                    ⚙️
-                                                </span>
-                                                <div>
-                                                    <div className="text-black">
-                                                        Responsive programs
-                                                    </div>
-                                                    <p className="text-dark text-sm">
-                                                        Great on any device.
-                                                    </p>
-                                                </div>
-                                            </Link>
-                                            <Link
-                                                href="/corporate/analytics"
-                                                className="flex items-center gap-1.25 p-4 transition-all duration-300 hover:bg-body-bg rounded-2xl">
-                                                <span className="text-black text-2xl">
-                                                    📊
-                                                </span>
-                                                <div>
-                                                    <div className="text-black">
-                                                        Integrated analytics
-                                                    </div>
-                                                    <p className="text-dark text-sm">
-                                                        Real-time insights.
-                                                    </p>
-                                                </div>
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-
-                        {/* About Us */}
-                        <Link
-                            href="/about"
-                            className="text-dark flex items-center py-2.5 font-medium">
-                            About Us
-                        </Link>
-
-                        {/* Resources */}
-                        <Menu as="div" className="m-1 relative inline-flex">
-                            <Menu.Button className="cursor-pointer text-dark flex items-center py-2.5 font-medium">
-                                Resources
-                                <FiChevronDown
-                                    className="ps-5 h-4 w-4"
-                                    aria-hidden="true"
-                                />
-                            </Menu.Button>
-
-                            <Transition
-                                as={Fragment}
-                                enter="transition ease-out duration-150"
-                                enterFrom="opacity-0 -translate-y-1"
-                                enterTo="opacity-100 translate-y-0"
-                                leave="transition ease-in duration-100"
-                                leaveFrom="opacity-100 translate-y-0"
-                                leaveTo="opacity-0 -translate-y-1">
-                                <Menu.Items className="absolute left-0 mt-2 w-[360px] origin-top-left rounded-2xl bg-white border border-neutral-200 focus:outline-none">
-                                    <div className="grid grid-cols-2 p-5 gap-10">
-                                        <div>
-                                            <MenuLink
-                                                href="/resources/news-events"
-                                                label="News & Events"
-                                            />
-                                            <MenuLink
-                                                href="/blog"
-                                                label="Blog"
-                                            />
-                                            <MenuLink
-                                                href="/glossary"
-                                                label="Glossary"
-                                            />
-                                            <MenuLink
-                                                href="/faqs"
-                                                label="FAQs"
-                                            />
-                                        </div>
-                                        <div>
-                                            <MenuLink
-                                                href="/resources/guides"
-                                                label="Guides"
-                                            />
-                                            <MenuLink
-                                                href="/resources/case-studies"
-                                                label="Case Studies"
-                                            />
-                                            <MenuLink
-                                                href="/resources/press"
-                                                label="Press"
-                                            />
-                                            <MenuLink
-                                                href="/privacy"
-                                                label="Privacy Policy"
-                                            />
-                                        </div>
-                                    </div>
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-
-                        {/* Contact us */}
-                        <Link
-                            href="/contact"
-                            className="flex items-center font-medium text-dark rounded-lg text-base py-1.25 hover:underline">
-                            Contact us
-                        </Link>
-                    </nav>
-
-                    {/* Right side */}
-                    <div className="flex flex-row justify-center items-center md:gap-4 gap-2.5">
-
-                        {/* Join Now CTA */}
-                        <div className="md:flex hidden">
+        <>
+            {/* Fixed header */}
+            <header className="fixed top-0 inset-x-0 z-[100] w-full bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-neutral-100">
+                <div className="container">
+                    <div className="flex items-center justify-between py-2.5 lg:py-4.5">
+                        {/* Logo */}
+                        <div className="text-lg font-bold">
                             <Link
-                                href="/join-waitlist"
-                                className="bg-primary text-dark hover:text-primary hover:bg-dark rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300">
-                                Join Now
+                                href="/"
+                                aria-label="GENO Wellness Hub"
+                                className="inline-flex items-center">
+                                <Image
+                                    src="/logo.png"
+                                    alt="GENO Wellness Hub"
+                                    className="h-8.5 lg:h-9 w-auto"
+                                    width={160}
+                                    height={36}
+                                    priority
+                                />
                             </Link>
                         </div>
 
-                        {/* Mobile toggle */}
-                        <div className="flex lg:hidden">
-                            <button
-                                type="button"
-                                onClick={() => setMobileOpen(true)}
-                                className="bg-dark text-white focus:text-black focus:bg-primary inline-flex justify-center items-center rounded-2xl md:size-13 size-11 p-3.5 font-medium transition-all duration-300"
-                                aria-haspopup="dialog"
-                                aria-expanded={mobileOpen}
-                                aria-controls="mobileMenuOffcanvas">
-                                <FiMenu className="h-5 w-5 text-2xl" />
-                            </button>
+                        {/* Desktop Nav */}
+                        <nav
+                            id="navbar"
+                            className="hidden lg:flex items-center gap-2">
+                            {/* Home */}
+                            <NavLink href="/">Home</NavLink>
+
+                            {/* For Individuals (Dropdown) */}
+                            <Menu as="div" className="relative">
+                                <MenuButton className="nav-trigger flex items-center outline-0 text-lg font-medium text-neutral-900 hover:text-neutral-700">
+                                    <span>For Individuals</span>
+                                    <FiChevronDown
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                    />
+                                </MenuButton>
+                                <Dropdown>
+                                    <div className="p-3">
+                                        <DropdownItem href="/individuals/wellness-plans">
+                                            Wellness Plans
+                                        </DropdownItem>
+                                        <DropdownItem href="/individuals/coaching">
+                                            1-on-1 Coaching
+                                        </DropdownItem>
+                                        <DropdownItem href="/individuals/resources">
+                                            Self-Care Library
+                                        </DropdownItem>
+                                    </div>
+                                </Dropdown>
+                            </Menu>
+
+                            {/* For Corporate */}
+                            <NavLink href="/corporate">For Corporate</NavLink>
+
+                            {/* <Popover className="relative">
+                                <PopoverButton className="nav-trigger flex text-dark">
+                                    <span>For Corporate</span>
+                                    <FiChevronDown
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                    />
+                                </PopoverButton>
+
+                                <Transition
+                                    as={Fragment}
+                                    enter="transition ease-out duration-150"
+                                    enterFrom="opacity-0 -translate-y-1"
+                                    enterTo="opacity-100 translate-y-0"
+                                    leave="transition ease-in duration-100"
+                                    leaveFrom="opacity-100 translate-y-0"
+                                    leaveTo="opacity-0 -translate-y-1">
+                                    <PopoverPanel
+                                        anchor="bottom start"
+                                        className="z-[110] mt-2 w-[560px] rounded-2xl bg-white border border-neutral-200 shadow-xl focus:outline-none">
+                                        <div className="grid grid-cols-2 gap-5 p-5">
+                                            <div>
+                                                <Image
+                                                    src="/corporate-teaser.jpg"
+                                                    alt="Corporate programs preview"
+                                                    className="rounded-2xl w-full h-auto object-cover"
+                                                    width={400}
+                                                    height={260}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col justify-center gap-2.5">
+                                                <MegaLink
+                                                    href="/corporate/onboarding"
+                                                    emoji="🏁"
+                                                    title="Seamless onboarding"
+                                                    desc="Quick, easy setup."
+                                                />
+                                                <MegaLink
+                                                    href="/corporate/programs"
+                                                    emoji="⚙️"
+                                                    title="Responsive programs"
+                                                    desc="Great on any device."
+                                                />
+                                                <MegaLink
+                                                    href="/corporate/analytics"
+                                                    emoji="📊"
+                                                    title="Integrated analytics"
+                                                    desc="Real-time insights."
+                                                />
+                                            </div>
+                                        </div>
+                                    </PopoverPanel>
+                                </Transition>
+                            </Popover> */}
+
+                            {/* About */}
+                            <NavLink href="/about">About Us</NavLink>
+
+
+                            {/* Resources (Dropdown, 2 cols) */}
+                            <Menu as="div" className="relative">
+                                <MenuButton className="nav-trigger flex items-center outline-0 text-lg font-medium text-neutral-900 hover:text-neutral-700">
+                                    <span className="mr-1">Resources</span>
+                                    <FiChevronDown
+                                        className="h-4 w-4"
+                                        aria-hidden="true"
+                                    />
+                                </MenuButton>
+                                <Dropdown className="w-[360px]">
+                                    <div className="grid grid-cols-2 gap-6 p-5">
+                                        <div className="space-y-1">
+                                            <DropdownItem href="/resources/news-events">
+                                                News &amp; Events
+                                            </DropdownItem>
+                                            <DropdownItem href="/blog">
+                                                Blog
+                                            </DropdownItem>
+                                            <DropdownItem href="/glossary">
+                                                Glossary
+                                            </DropdownItem>
+                                            <DropdownItem href="/faqs">
+                                                FAQs
+                                            </DropdownItem>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <DropdownItem href="/resources/guides">
+                                                Guides
+                                            </DropdownItem>
+                                            <DropdownItem href="/resources/case-studies">
+                                                Case Studies
+                                            </DropdownItem>
+                                            <DropdownItem href="/resources/press">
+                                                Press
+                                            </DropdownItem>
+                                            <DropdownItem href="/privacy">
+                                                Privacy Policy
+                                            </DropdownItem>
+                                        </div>
+                                    </div>
+                                </Dropdown>
+                            </Menu>
+
+                            {/* Contact */}
+                            <NavLink href="/contact">Contact Us</NavLink>
+                        </nav>
+
+                        {/* Right side */}
+                        <div className="flex items-center md:gap-4 gap-2.5">
+                            {/* CTA -> Google Form */}
+                            <div className="hidden md:flex">
+                                <Link
+                                    href="https://forms.gle/Peq5jNjPiii38LLd9"
+                                    target="_blank"
+                                    rel="noopener nofollow"
+                                    className="rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 bg-primary text-dark hover:bg-neutral-900 hover:text-primary">
+                                    Join Now
+                                </Link>
+                            </div>
+
+                            {/* Mobile toggle */}
+                            <div className="flex lg:hidden">
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileOpen(true)}
+                                    className="inline-flex items-center justify-center rounded-2xl md:size-13 size-11 p-3.5 font-medium transition-all duration-300 bg-neutral-900 text-white hover:bg-neutral-800"
+                                    aria-haspopup="dialog"
+                                    aria-expanded={mobileOpen}
+                                    aria-controls="mobileMenuOffcanvas"
+                                    aria-label="Open menu">
+                                    <FiMenu className="h-5 w-5" />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+                {/* Global trigger style (ensures chevron & text same line) */}
+                <style jsx global>{`
+                    .nav-trigger {
+                        @apply inline-flex items-center gap-2 whitespace-nowrap px-3 py-2.5 text-base font-medium text-neutral-900 hover:text-neutral-700 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-300;
+                    }
+                `}</style>
+            </header>
+
+            {/* Spacer */}
+            <div aria-hidden="true" className="h-[64px] lg:h-[84px]" />
 
             {/* Mobile Off-Canvas */}
             <Dialog
                 as="div"
                 open={mobileOpen}
                 onClose={setMobileOpen}
-                className="relative z-[60]">
+                className="relative z-[200]">
                 <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
                 <div className="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-xl">
                     <div className="flex items-center justify-between p-4 border-b border-neutral-200">
@@ -303,7 +264,7 @@ export default function Header() {
 
                         {/* Individuals */}
                         <Disclosure>
-                            {({ open }: { open: boolean }) => (
+                            {({ open }) => (
                                 <div className="border border-neutral-200 rounded-xl">
                                     <Disclosure.Button className="w-full flex justify-between items-center px-4 py-3 text-left">
                                         <span className="text-neutral-900 font-medium">
@@ -344,7 +305,7 @@ export default function Header() {
 
                         {/* Corporate */}
                         <Disclosure>
-                            {({ open }: { open: boolean }) => (
+                            {({ open }) => (
                                 <div className="border border-neutral-200 rounded-xl">
                                     <Disclosure.Button className="w-full flex justify-between items-center px-4 py-3 text-left">
                                         <span className="text-neutral-900 font-medium">
@@ -392,7 +353,7 @@ export default function Header() {
 
                         {/* Resources */}
                         <Disclosure>
-                            {({ open }: { open: boolean }) => (
+                            {({ open }) => (
                                 <div className="border border-neutral-200 rounded-xl">
                                     <Disclosure.Button className="w-full flex justify-between items-center px-4 py-3 text-left">
                                         <span className="text-neutral-900 font-medium">
@@ -447,32 +408,84 @@ export default function Header() {
 
                         {/* CTA */}
                         <Link
-                            href="/join-waitlist"
+                            href="https://forms.gle/Peq5jNjPiii38LLd9"
+                            target="_blank"
+                            rel="noopener nofollow"
                             onClick={() => setMobileOpen(false)}
-                            className="block text-center bg-primary text-dark hover:text-primary hover:bg-dark rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 mt-2">
-                            Join Now
+                            className="block text-center bg-primary text-dark hover:text-primary hover:bg-neutral-900 rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 mt-2">
+                            Join the Waitlist
                         </Link>
                     </div>
                 </div>
             </Dialog>
-        </header>
+        </>
     )
 }
 
-/* ---------- Helpers ---------- */
-function MenuLink({ href, label }: { href: string; label: string }) {
+/* ---------- Reusable UI ---------- */
+function NavLink({
+    href,
+    children
+}: {
+    href: string
+    children: React.ReactNode
+}) {
     return (
-        <Menu.Item>
-            {({ active }: { active: boolean }) => (
+        <Link
+            href={href}
+            className="px-3 py-2.5 text-lg font-medium text-neutral-900 hover:text-neutral-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-neutral-300 rounded-lg">
+            {children}
+        </Link>
+    )
+}
+
+function Dropdown({
+    children,
+    className = 'w-60',
+}: {
+    children: React.ReactNode
+    className?: string
+}) {
+    return (
+        <Transition
+            as={Fragment}
+            enter="transition ease-out duration-150"
+            enterFrom="opacity-0 -translate-y-1"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition ease-in duration-100"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 -translate-y-1">
+            <MenuItems
+                anchor="bottom start"
+                className={`z-[110] mt-2 origin-top-left rounded-2xl bg-white border border-neutral-200 shadow-xl focus:outline-none ${className}`}>
+                {children}
+            </MenuItems>
+        </Transition>
+    )
+}
+
+function DropdownItem({
+    href,
+    children,
+}: {
+    href: string
+    children: React.ReactNode
+}) {
+    return (
+        <MenuItem>
+            {({ active }) => (
                 <Link
                     href={href}
-                    className={`flex items-center font-medium text-dark rounded-lg text-base py-1.25 hover:underline ${
-                        active ? 'underline' : ''
+                    className={`flex items-center justify-between rounded-lg px-3 py-2 text-[15px] font-medium ${
+                        active
+                            ? 'bg-neutral-50 text-neutral-900'
+                            : 'text-neutral-800'
                     }`}>
-                    {label}
+                    <span className="truncate">{children}</span>
+                    <BsArrowRight className="ms-2 h-4 w-4 opacity-60 shrink-0" />
                 </Link>
             )}
-        </Menu.Item>
+        </MenuItem>
     )
 }
 
@@ -512,4 +525,11 @@ function MobileSubLink({
             {children}
         </Link>
     )
+}
+
+/* ---------- Types & props ---------- */
+declare module 'react' {
+    interface HTMLAttributes<T> extends AriaAttributes, DOMAttributes<T> {
+        anchor?: string
+    }
 }
