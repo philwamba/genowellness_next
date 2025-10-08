@@ -36,7 +36,6 @@ export default function ComingSoon({
     const mm = Math.floor((remaining / (1000 * 60)) % 60)
     const ss = Math.floor((remaining / 1000) % 60)
 
-    // Stable server/client string (no locale drift)
     const formattedTarget = useMemo(
         () =>
             new Intl.DateTimeFormat(LOCALE, {
