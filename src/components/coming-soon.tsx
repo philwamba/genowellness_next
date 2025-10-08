@@ -10,8 +10,8 @@ type Props = {
     subtitle?: string
 }
 
-const LOCALE = 'en-GB' // stable: 01/12/2025 style
-const TZ = 'Africa/Nairobi' // stable timezone for both SSR and client
+const LOCALE = 'en-GB'
+const TZ = 'Africa/Nairobi'
 
 export default function ComingSoon({
     launchAt = '2025-12-01T10:00:00+03:00',
@@ -20,7 +20,6 @@ export default function ComingSoon({
 }: Props) {
     const launchMs = useMemo(() => new Date(launchAt).getTime(), [launchAt])
 
-    // Hydration-safe: render a static first paint (no ticking values)
     const [mounted, setMounted] = useState(false)
     const [now, setNow] = useState<number>(launchMs)
 
