@@ -1,38 +1,13 @@
 import Image from 'next/image'
+import HeroSection from '@/components/hero'
 
 export default function Home() {
     return (
         <div className="min-h-screen bg-white">
-            {/* Header */}
-            <header className="px-6 py-4">
-                <nav className="flex items-center justify-between max-w-7xl mx-auto">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">
-                                G
-                            </span>
-                        </div>
-                        <span className="font-nunito text-[18px] leading-[27px] text-[#141b2c]">
-                            GENO
-                        </span>
-                    </div>
-
-                    <div className="flex items-center gap-8">
-                        <a
-                            href="#"
-                            className="font-nunito text-[18px] leading-[27px] text-[#141b2c]">
-                            Science
-                        </a>
-                        <a
-                            href="#"
-                            className="font-nunito text-[18px] leading-[27px] text-[#141b2c]">
-                            For Your Organization
-                        </a>
-                    </div>
-                </nav>
-            </header>
 
             {/* Hero Section */}
+            <HeroSection />
+
             <main className="relative">
                 {/* Background Image */}
                 <div className="absolute inset-0">

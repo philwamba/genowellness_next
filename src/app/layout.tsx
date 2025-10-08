@@ -1,16 +1,18 @@
 import type { Metadata } from 'next'
-import { Nunito, Poppins } from 'next/font/google'
+import { Domine, Outfit } from 'next/font/google'
 import './globals.css'
+import './styles/app.css'
 
-const nunito = Nunito({
-    subsets: ['latin'],
-    variable: '--font-nunito',
-})
-
-const poppins = Poppins({
+const domine = Domine({
     subsets: ['latin'],
     weight: ['400', '700'],
-    variable: '--font-poppins',
+    variable: '--font-domine',
+})
+
+const outfit = Outfit({
+    subsets: ['latin'],
+    weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+    variable: '--font-outfit',
 })
 
 export const metadata: Metadata = {
@@ -26,7 +28,7 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body
-                className={`${nunito.variable} ${poppins.variable} antialiased`}>
+                className={`${domine.variable} ${outfit.variable} antialiased`}>
                 {children}
             </body>
         </html>
