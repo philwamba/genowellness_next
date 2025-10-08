@@ -47,7 +47,7 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* Links (kept same section layout & grid) */}
+                    {/* Links */}
                     <div className="lg:col-span-3">
                         <h4 className="text-1.5xl mb-5 text-white">
                             Quick Links
@@ -88,12 +88,9 @@ export default function Footer() {
                                 </ul>
                             </div>
 
-                            {/* Column 2 (stacked groups to preserve UI within the same grid) */}
+                            {/* Column 2 */}
                             <div>
                                 <div className="mb-5">
-                                    <h5 className="text-white mb-2">
-                                        Who We Serve
-                                    </h5>
                                     <ul className="flex flex-col justify-start gap-2.5 leading-normal">
                                         <li>
                                             <Link
@@ -113,9 +110,6 @@ export default function Footer() {
                                 </div>
 
                                 <div>
-                                    <h5 className="text-white mb-2">
-                                        Resources &amp; legal
-                                    </h5>
                                     <ul className="flex flex-col justify-start gap-2.5 leading-normal">
                                         <li>
                                             <Link
@@ -157,14 +151,14 @@ export default function Footer() {
                             Contact us
                         </h4>
                         <div>
-                            <p className="mb-3.75 text-sm text-white md:text-base">
+                            {/* <p className="mb-3.75 text-sm text-white md:text-base">
                                 1234 Innovation drive, suite 100, tech city, CA
                                 94043
                             </p>
 
                             <p className="hover:text-primary mb-3.75 text-sm text-white transition-all duration-300 md:text-base">
                                 <a href="tel:1234567890">(123) 456-7890</a>
-                            </p>
+                            </p> */}
 
                             <p className="hover:text-primary mb-3.75 text-sm text-white underline transition-all duration-300 md:text-base">
                                 <a href="mailto:hello@genowellnesshub.com">

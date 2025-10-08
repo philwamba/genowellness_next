@@ -26,7 +26,7 @@ export default function HeroSection() {
                         </Link>
 
                         <div className="flex gap-4 mt-8">
-                            <a href="#" className="inline-block">
+                            {/* <a href="#" className="inline-block">
                                 <Image
                                     src="/images/app-store.png"
                                     alt="Download on the App Store"
@@ -43,7 +43,7 @@ export default function HeroSection() {
                                     height={60}
                                     className="h-14 w-auto"
                                 />
-                            </a>
+                            </a> */}
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@ export default function HeroSection() {
                             <Image
                                 src="/images/mobile-app-mockup.png"
                                 alt="GENO Wellness Hub preview"
-                                className="rounded-2xl"
+                                className="rounded-2xl mt-[-100px] mx-auto"
                                 width={400}
                                 height={300}
                                 priority
