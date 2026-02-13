@@ -44,6 +44,7 @@ interface WellnessState {
         description?: string
         target_value?: number
         unit?: string
+        start_date?: string
         target_date?: string
     }) => Promise<void>
     updateGoalProgress: (id: number, value: number) => Promise<void>
@@ -52,7 +53,7 @@ interface WellnessState {
     fetchWellnessStats: () => Promise<void>
 }
 
-export const useWellnessStore = create<WellnessState>((set, get) => ({
+export const useWellnessStore = create<WellnessState>((set, _get) => ({
     todayMood: null,
     moodHistory: [],
     moodTrends: null,

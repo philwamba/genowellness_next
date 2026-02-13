@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, MouseEvent } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { AppHeader } from '@/components/layout/app-header'
@@ -13,6 +14,7 @@ import { FiCalendar, FiClock, FiVideo, FiPlay } from 'react-icons/fi'
 type TabType = 'upcoming' | 'explore' | 'past'
 
 export default function SessionsPage() {
+    const router = useRouter()
     const [activeTab, setActiveTab] = useState<TabType>('upcoming')
     const [upcomingSessions, setUpcomingSessions] = useState<Session[]>([])
     const [globalSessions, setGlobalSessions] = useState<Session[]>([])
@@ -32,7 +34,8 @@ export default function SessionsPage() {
                 const response = await sessionsApi.past()
                 setPastSessions(response.sessions as Session[])
             }
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch sessions:', error)
             toast.error('Failed to fetch sessions')
         } finally {
             setIsLoading(false)
@@ -91,6 +94,24 @@ export default function SessionsPage() {
                 {config.label}
             </span>
         )
+    }
+
+    const handleJoinSession = (e: MouseEvent, session: Session) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (session.meeting_url) {
+            window.open(session.meeting_url, '_blank')
+        } else {
+            router.push(`/sessions/${session.uuid}`)
+        }
+    }
+
+    const handleWatchRecording = (e: MouseEvent, session: Session) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (session.recording_url) {
+            window.open(session.recording_url, '_blank')
+        }
     }
 
     return (
@@ -186,7 +207,9 @@ export default function SessionsPage() {
                                 </div>
 
                                 {session.can_join && (
-                                    <button className="w-full mt-4 py-2.5 bg-primary text-white rounded-xl font-medium flex items-center justify-center gap-2">
+                                    <button
+                                        onClick={(e) => handleJoinSession(e, session)}
+                                        className="w-full mt-4 py-2.5 bg-primary text-white rounded-xl font-medium flex items-center justify-center gap-2">
                                         <FiVideo className="w-4 h-4" />
                                         Join Now
                                     </button>
@@ -194,7 +217,9 @@ export default function SessionsPage() {
 
                                 {session.has_recording &&
                                     activeTab === 'past' && (
-                                        <button className="w-full mt-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2">
+                                        <button
+                                            onClick={(e) => handleWatchRecording(e, session)}
+                                            className="w-full mt-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium flex items-center justify-center gap-2">
                                             <FiPlay className="w-4 h-4" />
                                             Watch Recording
                                         </button>

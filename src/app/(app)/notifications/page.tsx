@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils'
 import {
     FiBell,
     FiCalendar,
-    FiCheckCircle,
     FiMessageSquare,
     FiStar,
     FiTrash2,
@@ -72,19 +71,19 @@ export default function NotificationsPage() {
     }
 
     const markAsRead = async (id: string) => {
-        setNotifications(
-            notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
+        setNotifications(prev =>
+            prev.map(n => (n.id === id ? { ...n, read: true } : n)),
         )
         // API call would go here
     }
 
     const markAllAsRead = async () => {
-        setNotifications(notifications.map(n => ({ ...n, read: true })))
+        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
         // API call would go here
     }
 
     const deleteNotification = async (id: string) => {
-        setNotifications(notifications.filter(n => n.id !== id))
+        setNotifications(prev => prev.filter(n => n.id !== id))
         // API call would go here
     }
 

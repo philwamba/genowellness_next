@@ -92,7 +92,8 @@ export default function ProfilePage() {
         try {
             await logout()
             router.push('/login')
-        } catch (_error) {
+        } catch (error) {
+            console.error('Logout failed:', error)
             toast.error('Logout failed')
         }
     }
@@ -101,7 +102,8 @@ export default function ProfilePage() {
         try {
             await logMood(mood)
             toast.success('Mood logged!')
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to log mood:', error)
             toast.error('Failed to log mood')
         }
     }

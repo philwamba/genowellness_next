@@ -25,7 +25,8 @@ export default function ServiceDetailPage() {
             ])
             setService(serviceRes.service)
             setProviders(providersRes.providers)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch service details:', error)
             toast.error('Failed to fetch service details')
         } finally {
             setIsLoading(false)
@@ -90,7 +91,9 @@ export default function ServiceDetailPage() {
                             </p>
                         </div>
                         <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium">
-                            {formatCurrency(service.base_price)}
+                            {service.base_price != null
+                                ? formatCurrency(service.base_price)
+                                : 'Contact for pricing'}
                         </span>
                     </div>
 
@@ -185,7 +188,8 @@ export default function ServiceDetailPage() {
                                     <span className="text-sm font-medium text-primary">
                                         {formatCurrency(
                                             provider.hourly_rate ||
-                                                service.base_price,
+                                                service.base_price ||
+                                                0,
                                         )}
                                     </span>
                                 </button>

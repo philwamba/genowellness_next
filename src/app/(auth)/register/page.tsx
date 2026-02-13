@@ -36,7 +36,7 @@ export default function RegisterPage() {
             await registerWithEmail(name, email, password)
             router.push('/home')
         } catch (error) {
-            // Error is already set in the store
+            console.error('Registration failed:', error)
         }
     }
 
@@ -46,7 +46,7 @@ export default function RegisterPage() {
             await loginWithGoogle()
             router.push('/home')
         } catch (error) {
-            // Error is already set in the store
+            console.error('Google login failed:', error)
         }
     }
 

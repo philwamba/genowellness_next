@@ -184,6 +184,5 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  * Generate avatar URL from name
  */
 export function generateAvatarUrl(name: string): string {
-    const initials = getInitials(name)
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff`
 }

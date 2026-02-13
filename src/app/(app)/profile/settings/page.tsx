@@ -23,9 +23,8 @@ export default function ProfileSettingsPage() {
 
     const [name, setName] = useState(user?.name || '')
     const [email, setEmail] = useState(user?.email || '')
-    const [phone, setPhone] = useState(user?.phone || '')
-    const [location, setLocation] = useState(user?.location || '')
-    const [bio, setBio] = useState(user?.bio || '')
+    const [phone, setPhone] = useState(user?.phone_number || '')
+    const [location, setLocation] = useState(user?.address || '')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [success, setSuccess] = useState(false)
@@ -37,11 +36,12 @@ export default function ProfileSettingsPage() {
         setIsLoading(true)
 
         try {
-            await updateProfile({ name, email, phone, location, bio })
+            await updateProfile({ name, phone_number: phone, address: location })
             toast.success('Profile updated successfully!')
             setSuccess(true)
             setTimeout(() => setSuccess(false), 3000)
-        } catch (_err) {
+        } catch (error) {
+            console.error('Failed to update profile:', error)
             toast.error('Failed to update profile. Please try again.')
             setError('Failed to update profile. Please try again.')
         } finally {
@@ -176,18 +176,6 @@ export default function ProfileSettingsPage() {
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Bio
-                            </label>
-                            <textarea
-                                value={bio}
-                                onChange={e => setBio(e.target.value)}
-                                placeholder="Tell us about yourself"
-                                rows={3}
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                            />
-                        </div>
                     </div>
 
                     {/* Password Change Link */}

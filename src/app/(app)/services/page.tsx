@@ -25,7 +25,8 @@ export default function ServicesPage() {
                 : undefined
             const response = await servicesApi.list(params)
             setServices(response.services as Service[])
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch services:', error)
             toast.error('Failed to fetch services')
         } finally {
             setIsLoading(false)

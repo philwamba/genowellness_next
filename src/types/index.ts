@@ -69,6 +69,8 @@ export interface Service {
     base_price?: number
     duration_minutes?: number
     currency?: string
+    // Features included in the service
+    features?: string[]
 }
 
 // Provider Types

@@ -2,16 +2,7 @@ import type {
     Service,
     ProviderProfile,
     Booking,
-    Session,
-    MoodLog,
-    JournalEntry,
-    Goal,
-    Article,
-    WellnessTip,
-    Notification,
-    User,
     TimeSlot,
-    Review,
 } from '@/types'
 
 interface PaginationMeta {
@@ -360,6 +351,9 @@ export const sessionsApi = {
             `/sessions/${uuid}/rate`,
             data,
         ),
+
+    cancel: (uuid: string, reason?: string) =>
+        api.post<{ message: string }>(`/sessions/${uuid}/cancel`, { reason }),
 }
 
 // Wellness API
@@ -508,6 +502,8 @@ export const contentApi = {
         api.get<{ article: unknown }>(`/articles/${slug}`),
 
     getDailyTip: () => api.get<{ tip: unknown }>('/tips/daily'),
+
+    getTip: (id: number | string) => api.get<{ tip: unknown }>(`/tips/${id}`),
 }
 
 // Notifications API

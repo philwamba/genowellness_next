@@ -1,8 +1,6 @@
-import Image from 'next/image'
 import HeroSection from '@/components/hero'
 import QuickStartSection from '@/components/start'
 import KeyFeaturesSection from '@/components/features'
-import Link from 'next/link'
 import CTA from '@/components/cta'
 
 export default function Home() {

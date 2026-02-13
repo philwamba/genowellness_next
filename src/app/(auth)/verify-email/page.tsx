@@ -36,7 +36,8 @@ export default function VerifyEmailPage() {
                 setStatus('error')
                 toast.error('Email verification failed')
             }
-        } catch (_error) {
+        } catch (error) {
+            console.error('Email verification failed:', error)
             setStatus('error')
             toast.error('Email verification failed')
         }
@@ -70,7 +71,8 @@ export default function VerifyEmailPage() {
             } else {
                 toast.error('Failed to send verification email')
             }
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to send verification email:', error)
             toast.error('Failed to send verification email')
         } finally {
             setIsResending(false)
