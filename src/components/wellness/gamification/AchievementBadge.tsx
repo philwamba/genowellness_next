@@ -95,7 +95,7 @@ export function AchievementBadge({
 }: AchievementBadgeProps) {
     const theme = getBadgeTheme(badge.id)
     const sizeClass = SIZE_CLASSES[size]
-    const icon = badge.icon ? BADGE_ICONS[badge.icon] : <FiAward />
+    const icon = (badge.icon && BADGE_ICONS[badge.icon]) || <FiAward />
 
     const BadgeIcon = (
         <div

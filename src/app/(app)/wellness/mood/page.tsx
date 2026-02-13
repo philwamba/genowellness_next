@@ -23,6 +23,7 @@ export default function MoodPage() {
         wellnessStats,
         fetchTodayMood,
         fetchMoodTrends,
+        fetchMoodHistory,
         fetchWellnessStats,
     } = useWellnessStore()
 
@@ -32,8 +33,9 @@ export default function MoodPage() {
     useEffect(() => {
         fetchTodayMood()
         fetchMoodTrends(30)
+        fetchMoodHistory({ per_page: 100 })
         fetchWellnessStats()
-    }, [fetchTodayMood, fetchMoodTrends, fetchWellnessStats])
+    }, [fetchTodayMood, fetchMoodTrends, fetchMoodHistory, fetchWellnessStats])
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">

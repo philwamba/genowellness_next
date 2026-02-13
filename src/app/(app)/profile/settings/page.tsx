@@ -22,7 +22,7 @@ export default function ProfileSettingsPage() {
     const { user, updateProfile } = useAuthStore()
 
     const [name, setName] = useState(user?.name || '')
-    const [email, setEmail] = useState(user?.email || '')
+    const email = user?.email || ''
     const [phone, setPhone] = useState(user?.phone_number || '')
     const [location, setLocation] = useState(user?.address || '')
     const [isLoading, setIsLoading] = useState(false)
@@ -137,11 +137,14 @@ export default function ProfileSettingsPage() {
                                 <input
                                     type="email"
                                     value={email}
-                                    onChange={e => setEmail(e.target.value)}
-                                    placeholder="Enter your email"
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                                    readOnly
+                                    disabled
+                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
                                 />
                             </div>
+                            <p className="mt-1 text-xs text-gray-400">
+                                Email cannot be changed
+                            </p>
                         </div>
 
                         <div>

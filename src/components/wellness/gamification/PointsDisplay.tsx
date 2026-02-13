@@ -29,9 +29,12 @@ export function PointsDisplay({
     }
 
     const { total_points, level, points_to_next_level } = stats
+    // Assuming each level requires 100 points
+    const pointsPerLevel = 100
+    const pointsEarnedInLevel = Math.max(0, pointsPerLevel - points_to_next_level)
     const progressToNextLevel =
         points_to_next_level > 0
-            ? ((total_points % 100) / points_to_next_level) * 100
+            ? (pointsEarnedInLevel / pointsPerLevel) * 100
             : 100
 
     if (variant === 'compact') {

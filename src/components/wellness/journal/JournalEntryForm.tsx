@@ -31,8 +31,9 @@ export function JournalEntryForm({
     onCancel,
     initialData,
     isEditing = false,
+    entryId,
 }: JournalEntryFormProps) {
-    const { createJournalEntry, isJournalLoading } = useWellnessStore()
+    const { createJournalEntry, updateJournalEntry, isJournalLoading } = useWellnessStore()
     const [selectedMood, setSelectedMood] = useState<MoodTypeValue | null>(
         (initialData?.mood as MoodTypeValue) || null,
     )
@@ -75,11 +76,19 @@ export function JournalEntryForm({
     const onSubmit = useCallback(
         async (data: JournalEntryInput) => {
             try {
-                await createJournalEntry(
-                    data.content,
-                    selectedMood || undefined,
-                    tags.length > 0 ? tags : undefined,
-                )
+                if (isEditing && entryId) {
+                    await updateJournalEntry(entryId, {
+                        content: data.content,
+                        mood: selectedMood || undefined,
+                        tags: tags.length > 0 ? tags : undefined,
+                    })
+                } else {
+                    await createJournalEntry(
+                        data.content,
+                        selectedMood || undefined,
+                        tags.length > 0 ? tags : undefined,
+                    )
+                }
                 toast.success(
                     isEditing ? 'Journal entry updated!' : 'Journal entry created!',
                 )
@@ -88,7 +97,7 @@ export function JournalEntryForm({
                 toast.error('Failed to save journal entry. Please try again.')
             }
         },
-        [createJournalEntry, selectedMood, tags, isEditing, onSuccess],
+        [createJournalEntry, updateJournalEntry, selectedMood, tags, isEditing, entryId, onSuccess],
     )
 
     return (

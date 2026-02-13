@@ -5,10 +5,23 @@ import { AppHeader } from '@/components/layout/app-header'
 import { GoalForm } from '@/components/wellness/goals'
 import { type GoalCategoryValue } from '@/lib/validations/wellness'
 
+const VALID_CATEGORIES: GoalCategoryValue[] = [
+    'physical',
+    'mental',
+    'financial',
+    'social',
+    'occupational',
+    'spiritual',
+]
+
 export default function NewGoalPage() {
     const router = useRouter()
     const searchParams = useSearchParams()
-    const initialCategory = searchParams.get('category') as GoalCategoryValue | null
+    const categoryParam = searchParams.get('category')
+    // Validate that the category is a valid GoalCategoryValue
+    const initialCategory = categoryParam && VALID_CATEGORIES.includes(categoryParam as GoalCategoryValue)
+        ? (categoryParam as GoalCategoryValue)
+        : undefined
 
     const handleSuccess = () => {
         router.push('/wellness/goals')
@@ -29,7 +42,7 @@ export default function NewGoalPage() {
             <main className="p-4">
                 <div className="rounded-xl bg-white p-4 shadow-sm">
                     <GoalForm
-                        initialCategory={initialCategory || undefined}
+                        initialCategory={initialCategory}
                         onSuccess={handleSuccess}
                         onCancel={handleCancel}
                     />

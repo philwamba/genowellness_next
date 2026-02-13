@@ -47,13 +47,10 @@ export default function PhysicalWellnessPage() {
         register,
         handleSubmit,
         watch,
+        reset,
         formState: { errors },
     } = useForm<BMICalculatorInput>({
         resolver: zodResolver(bmiCalculatorSchema),
-        defaultValues: {
-            height: metrics.height?.value || undefined,
-            weight: metrics.weight?.value || undefined,
-        },
     })
 
     const height = watch('height')
@@ -68,8 +65,19 @@ export default function PhysicalWellnessPage() {
                     wellnessApi.getLatestMetrics(),
                     wellnessApi.getMetrics({ type: 'steps' }),
                 ])
-                setMetrics(metricsRes.metrics as Record<string, WellnessMetric>)
-                setStepHistory(stepsRes.metrics as WellnessMetric[])
+                const loadedMetrics = metricsRes.metrics as Record<string, WellnessMetric>
+                setMetrics(loadedMetrics)
+                // Sort steps by date descending (most recent first)
+                const sortedSteps = (stepsRes.metrics as WellnessMetric[]).sort((a, b) =>
+                    new Date(b.logged_at || b.created_at).getTime() -
+                    new Date(a.logged_at || a.created_at).getTime()
+                )
+                setStepHistory(sortedSteps)
+                // Prefill form with existing values
+                reset({
+                    height: loadedMetrics.height?.value || undefined,
+                    weight: loadedMetrics.weight?.value || undefined,
+                })
             } catch (error) {
                 console.error('Failed to load metrics:', error)
             } finally {
@@ -79,7 +87,7 @@ export default function PhysicalWellnessPage() {
 
         loadData()
         fetchGoals('physical')
-    }, [fetchGoals])
+    }, [fetchGoals, reset])
 
     const onSubmitBMI = useCallback(
         async (data: BMICalculatorInput) => {

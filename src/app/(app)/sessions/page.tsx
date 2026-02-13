@@ -100,7 +100,8 @@ export default function SessionsPage() {
         e.preventDefault()
         e.stopPropagation()
         if (session.meeting_url) {
-            window.open(session.meeting_url, '_blank')
+            const newWindow = window.open(session.meeting_url, '_blank', 'noopener,noreferrer')
+            if (newWindow) newWindow.opener = null
         } else {
             router.push(`/sessions/${session.uuid}`)
         }
@@ -110,7 +111,10 @@ export default function SessionsPage() {
         e.preventDefault()
         e.stopPropagation()
         if (session.recording_url) {
-            window.open(session.recording_url, '_blank')
+            const newWindow = window.open(session.recording_url, '_blank', 'noopener,noreferrer')
+            if (newWindow) newWindow.opener = null
+        } else {
+            router.push(`/sessions/${session.uuid}`)
         }
     }
 

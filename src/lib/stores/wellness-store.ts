@@ -28,12 +28,17 @@ interface WellnessState {
     fetchTodayMood: () => Promise<void>
     logMood: (mood: string, note?: string) => Promise<{ points_earned: number }>
     fetchMoodTrends: (days?: number) => Promise<void>
+    fetchMoodHistory: (params?: { start_date?: string; end_date?: string; per_page?: number }) => Promise<void>
 
     fetchJournalEntries: () => Promise<void>
     createJournalEntry: (
         content: string,
         mood?: string,
         tags?: string[],
+    ) => Promise<void>
+    updateJournalEntry: (
+        id: number,
+        data: { content?: string; mood?: string; tags?: string[] },
     ) => Promise<void>
     deleteJournalEntry: (id: number) => Promise<void>
 
@@ -98,6 +103,18 @@ export const useWellnessStore = create<WellnessState>((set, _get) => ({
         }
     },
 
+    fetchMoodHistory: async (params?: { start_date?: string; end_date?: string; per_page?: number }) => {
+        set({ isMoodLoading: true })
+        try {
+            const response = await wellnessApi.getMoods(params)
+            set({ moodHistory: response.mood_logs as MoodLog[] })
+        } catch (error) {
+            console.error('Failed to fetch mood history:', error)
+        } finally {
+            set({ isMoodLoading: false })
+        }
+    },
+
     fetchJournalEntries: async () => {
         set({ isJournalLoading: true })
         try {
@@ -125,6 +142,24 @@ export const useWellnessStore = create<WellnessState>((set, _get) => ({
             const newEntry = response.entry as JournalEntry
             set(state => ({
                 journalEntries: [newEntry, ...state.journalEntries],
+            }))
+        } finally {
+            set({ isJournalLoading: false })
+        }
+    },
+
+    updateJournalEntry: async (
+        id: number,
+        data: { content?: string; mood?: string; tags?: string[] },
+    ) => {
+        set({ isJournalLoading: true })
+        try {
+            const response = await wellnessApi.updateJournalEntry(id, data)
+            const updatedEntry = response.entry as JournalEntry
+            set(state => ({
+                journalEntries: state.journalEntries.map(e =>
+                    e.id === id ? updatedEntry : e,
+                ),
             }))
         } finally {
             set({ isJournalLoading: false })

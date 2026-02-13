@@ -30,6 +30,7 @@ export default function JournalEntryDetailPage() {
         useWellnessStore()
 
     const entryId = Number(params.id)
+    const isValidId = !Number.isNaN(entryId) && entryId > 0
     const isEditMode = searchParams.get('edit') === 'true'
 
     const [entry, setEntry] = useState<JournalEntry | null>(null)
@@ -37,15 +38,17 @@ export default function JournalEntryDetailPage() {
     const [isEditing, setIsEditing] = useState(isEditMode)
 
     useEffect(() => {
-        if (journalEntries.length === 0) {
+        if (isValidId && journalEntries.length === 0) {
             fetchJournalEntries()
         }
-    }, [journalEntries.length, fetchJournalEntries])
+    }, [isValidId, journalEntries.length, fetchJournalEntries])
 
     useEffect(() => {
-        const found = journalEntries.find((e) => e.id === entryId)
-        setEntry(found || null)
-    }, [journalEntries, entryId])
+        if (isValidId) {
+            const found = journalEntries.find((e) => e.id === entryId)
+            setEntry(found || null)
+        }
+    }, [isValidId, journalEntries, entryId])
 
     const handleDelete = useCallback(async () => {
         try {
@@ -62,7 +65,7 @@ export default function JournalEntryDetailPage() {
         fetchJournalEntries()
     }, [fetchJournalEntries])
 
-    if (!entry && !isJournalLoading) {
+    if (!isValidId || (!entry && !isJournalLoading)) {
         return (
             <div className="min-h-screen bg-gray-50 pb-24">
                 <AppHeader
@@ -71,7 +74,9 @@ export default function JournalEntryDetailPage() {
                     onBack={() => router.push('/wellness/journal')}
                 />
                 <main className="flex h-64 items-center justify-center p-4">
-                    <p className="text-gray-500">Entry not found</p>
+                    <p className="text-gray-500">
+                        {!isValidId ? 'Invalid entry ID' : 'Entry not found'}
+                    </p>
                 </main>
             </div>
         )

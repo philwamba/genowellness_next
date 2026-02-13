@@ -91,11 +91,12 @@ export function GoalProgressTracker({
         ],
     )
 
+    const safeInputValue = Number.isNaN(inputValue) ? 0 : (inputValue || 0)
     const previewProgress =
         mode === 'add'
-            ? currentValue + (inputValue || 0)
-            : inputValue || currentValue
-    const previewPercentage = targetValue
+            ? currentValue + safeInputValue
+            : safeInputValue || currentValue
+    const previewPercentage = targetValue > 0
         ? Math.min(100, (previewProgress / targetValue) * 100)
         : 0
 
@@ -207,7 +208,7 @@ export function GoalProgressTracker({
                     )}
 
                     {/* Preview */}
-                    {inputValue > 0 && (
+                    {safeInputValue > 0 && (
                         <div className="rounded-lg bg-primary/5 p-3">
                             <div className="mb-1 flex items-center justify-between text-sm">
                                 <span className="text-gray-600">New Progress</span>
