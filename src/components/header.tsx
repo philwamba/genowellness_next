@@ -136,7 +136,6 @@ export default function Header() {
                             {/* About */}
                             <NavLink href="/about">About Us</NavLink>
 
-
                             {/* Resources (Dropdown, 2 cols) */}
                             <Menu as="div" className="relative">
                                 <MenuButton className="nav-trigger flex items-center outline-0 text-lg font-medium text-neutral-900 hover:text-neutral-700">
@@ -425,7 +424,7 @@ export default function Header() {
 /* ---------- Reusable UI ---------- */
 function NavLink({
     href,
-    children
+    children,
 }: {
     href: string
     children: React.ReactNode

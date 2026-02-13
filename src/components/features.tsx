@@ -142,7 +142,8 @@ export default function KeyFeaturesSection() {
                 <div className="flex md:justify-center gap-2.5 mt-10 flex-wrap justify-start">
                     <i className="iconify solar--dialog-2-bold size-5.5 text-dark" />
                     <div className="text-dark fs-base">
-                        Be among the first to try GENO Wellness when it launches.
+                        Be among the first to try GENO Wellness when it
+                        launches.
                     </div>
 
                     <a
