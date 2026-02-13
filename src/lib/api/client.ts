@@ -1,0 +1,534 @@
+import type {
+    Service,
+    ProviderProfile,
+    Booking,
+    Session,
+    MoodLog,
+    JournalEntry,
+    Goal,
+    Article,
+    WellnessTip,
+    Notification,
+    User,
+    TimeSlot,
+    Review,
+} from '@/types'
+
+interface PaginationMeta {
+    current_page: number
+    last_page: number
+    per_page: number
+    total: number
+}
+
+const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+
+interface RequestOptions extends RequestInit {
+    params?: Record<string, string | number | boolean | undefined>
+}
+
+class ApiClient {
+    private baseUrl: string
+    private token: string | null = null
+
+    constructor(baseUrl: string) {
+        this.baseUrl = baseUrl
+    }
+
+    setToken(token: string | null) {
+        this.token = token
+        if (typeof window !== 'undefined') {
+            if (token) {
+                localStorage.setItem('auth_token', token)
+            } else {
+                localStorage.removeItem('auth_token')
+            }
+        }
+    }
+
+    getToken(): string | null {
+        if (this.token) return this.token
+        if (typeof window !== 'undefined') {
+            this.token = localStorage.getItem('auth_token')
+        }
+        return this.token
+    }
+
+    private buildUrl(
+        endpoint: string,
+        params?: Record<string, string | number | boolean | undefined>,
+    ): string {
+        const url = new URL(`${this.baseUrl}${endpoint}`)
+        if (params) {
+            Object.entries(params).forEach(([key, value]) => {
+                if (value !== undefined) {
+                    url.searchParams.append(key, String(value))
+                }
+            })
+        }
+        return url.toString()
+    }
+
+    private async request<T>(
+        endpoint: string,
+        options: RequestOptions = {},
+    ): Promise<T> {
+        const { params, ...fetchOptions } = options
+        const url = this.buildUrl(endpoint, params)
+
+        const headers: HeadersInit = {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            ...options.headers,
+        }
+
+        const token = this.getToken()
+        if (token) {
+            ;(headers as Record<string, string>)['Authorization'] =
+                `Bearer ${token}`
+        }
+
+        const response = await fetch(url, {
+            ...fetchOptions,
+            headers,
+        })
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => ({}))
+            throw new ApiError(
+                error.message || 'An error occurred',
+                response.status,
+                error.errors,
+            )
+        }
+
+        return response.json()
+    }
+
+    async get<T>(
+        endpoint: string,
+        params?: Record<string, string | number | boolean | undefined>,
+    ): Promise<T> {
+        return this.request<T>(endpoint, { method: 'GET', params })
+    }
+
+    async post<T>(endpoint: string, data?: unknown): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: 'POST',
+            body: data ? JSON.stringify(data) : undefined,
+        })
+    }
+
+    async put<T>(endpoint: string, data?: unknown): Promise<T> {
+        return this.request<T>(endpoint, {
+            method: 'PUT',
+            body: data ? JSON.stringify(data) : undefined,
+        })
+    }
+
+    async delete<T>(endpoint: string): Promise<T> {
+        return this.request<T>(endpoint, { method: 'DELETE' })
+    }
+}
+
+export class ApiError extends Error {
+    status: number
+    errors?: Record<string, string[]>
+
+    constructor(
+        message: string,
+        status: number,
+        errors?: Record<string, string[]>,
+    ) {
+        super(message)
+        this.name = 'ApiError'
+        this.status = status
+        this.errors = errors
+    }
+}
+
+export const api = new ApiClient(API_BASE_URL)
+
+// Auth API
+export const authApi = {
+    login: (credentials: { email: string; password: string }) =>
+        api.post<{ message: string; user: unknown; token: string }>(
+            '/auth/login',
+            credentials,
+        ),
+
+    register: (data: {
+        name: string
+        email: string
+        password: string
+        password_confirmation: string
+        phone_number?: string
+    }) =>
+        api.post<{ message: string; user: unknown; token: string }>(
+            '/auth/register',
+            data,
+        ),
+
+    firebaseAuth: (data: {
+        firebase_uid: string
+        email: string
+        name?: string
+        photo_url?: string
+        phone_number?: string
+    }) =>
+        api.post<{
+            message: string
+            user: unknown
+            token: string
+            is_new_user: boolean
+        }>('/auth/firebase', data),
+
+    logout: () => api.post('/auth/logout'),
+
+    getUser: () => api.get<{ user: unknown }>('/auth/user'),
+
+    updateProfile: (
+        data: Partial<{
+            name: string
+            phone_number: string
+            date_of_birth: string
+            gender: string
+            address: string
+            avatar_url: string
+        }>,
+    ) => api.put<{ message: string; user: unknown }>('/auth/user', data),
+
+    forgotPassword: (email: string) =>
+        api.post<{ message: string }>('/auth/forgot-password', { email }),
+
+    resetPassword: (data: {
+        token: string
+        email: string
+        password: string
+        password_confirmation: string
+    }) => api.post<{ message: string }>('/auth/reset-password', data),
+
+    changePassword: (data: {
+        current_password: string
+        password: string
+        password_confirmation: string
+    }) => api.post<{ message: string }>('/auth/change-password', data),
+}
+
+// Services API
+export const servicesApi = {
+    list: (params?: { category?: string }) =>
+        api.get<{ services: Service[] }>('/services', params),
+
+    categories: () =>
+        api.get<{
+            categories: { slug: string; title: string; description: string }[]
+        }>('/services/categories'),
+
+    get: (slug: string) => api.get<{ service: Service }>(`/services/${slug}`),
+
+    show: (slug: string) => api.get<{ service: Service }>(`/services/${slug}`),
+
+    getProviders: (
+        slug: string,
+        params?: { sort?: string; per_page?: number; page?: number },
+    ) =>
+        api.get<{ providers: ProviderProfile[]; meta: PaginationMeta }>(
+            `/services/${slug}/providers`,
+            params,
+        ),
+
+    providers: (
+        slug: string,
+        params?: { sort?: string; per_page?: number; page?: number },
+    ) =>
+        api.get<{ providers: ProviderProfile[]; meta: PaginationMeta }>(
+            `/services/${slug}/providers`,
+            params,
+        ),
+
+    availableSlots: (providerId: string, date: string) =>
+        api.get<{ slots: TimeSlot[] }>(`/providers/${providerId}/availability`, {
+            date,
+        }),
+}
+
+// Providers API
+export const providersApi = {
+    list: (params?: {
+        service_id?: number
+        specialization?: string
+        sort?: string
+        per_page?: number
+        page?: number
+    }) =>
+        api.get<{ providers: unknown[]; meta: unknown }>('/providers', params),
+
+    featured: () => api.get<{ providers: unknown[] }>('/providers/featured'),
+
+    get: (id: number) => api.get<{ provider: unknown }>(`/providers/${id}`),
+
+    getAvailability: (
+        id: number,
+        params?: { date?: string; start_date?: string; end_date?: string },
+    ) =>
+        api.get<{
+            time_slots: unknown[]
+            blocked_dates: string[]
+            booked_slots: Record<string, string[]>
+            timezone: string
+        }>(`/providers/${id}/availability`, params),
+
+    getReviews: (id: number, params?: { per_page?: number; page?: number }) =>
+        api.get<{
+            reviews: unknown[]
+            rating_breakdown: Record<number, number>
+            average_rating: number
+            total_reviews: number
+            meta: unknown
+        }>(`/providers/${id}/reviews`, params),
+
+    getServices: (id: number) =>
+        api.get<{ services: unknown[] }>(`/providers/${id}/services`),
+}
+
+// Bookings API
+export const bookingsApi = {
+    list: (params?: { status?: string; per_page?: number; page?: number }) =>
+        api.get<{ bookings: unknown[]; meta: unknown }>('/bookings', params),
+
+    upcoming: () => api.get<{ bookings: unknown[] }>('/bookings/upcoming'),
+
+    get: (uuid: string) => api.get<{ booking: unknown }>(`/bookings/${uuid}`),
+
+    create: (data: {
+        provider_id: number
+        service_id: number
+        scheduled_date?: string
+        scheduled_time?: string
+        scheduled_at?: string
+        time_slot_id?: number
+        duration_minutes?: number
+        client_notes?: string
+        notes?: string
+    }) => api.post<{ message: string; booking: Booking }>('/bookings', data),
+
+    cancel: (uuid: string, reason?: string) =>
+        api.post<{ message: string; booking: unknown }>(
+            `/bookings/${uuid}/cancel`,
+            { reason },
+        ),
+
+    reschedule: (
+        uuid: string,
+        data: { scheduled_date: string; scheduled_time: string },
+    ) =>
+        api.post<{ message: string; booking: unknown }>(
+            `/bookings/${uuid}/reschedule`,
+            data,
+        ),
+}
+
+// Sessions API
+export const sessionsApi = {
+    list: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ sessions: unknown[]; meta: unknown }>('/sessions', params),
+
+    global: () => api.get<{ sessions: unknown[] }>('/sessions/global'),
+
+    upcoming: () => api.get<{ sessions: unknown[] }>('/sessions/upcoming'),
+
+    past: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ sessions: unknown[]; meta: unknown }>(
+            '/sessions/past',
+            params,
+        ),
+
+    get: (uuid: string) => api.get<{ session: unknown }>(`/sessions/${uuid}`),
+
+    join: (uuid: string) =>
+        api.post<{ message: string; meeting_url: string }>(
+            `/sessions/${uuid}/join`,
+        ),
+
+    rate: (
+        uuid: string,
+        data: { rating: number; comment?: string; is_anonymous?: boolean },
+    ) =>
+        api.post<{ message: string; review: unknown }>(
+            `/sessions/${uuid}/rate`,
+            data,
+        ),
+}
+
+// Wellness API
+export const wellnessApi = {
+    dashboard: () => api.get<{ dashboard: unknown }>('/wellness/dashboard'),
+
+    // Mood
+    getMoods: (params?: {
+        start_date?: string
+        end_date?: string
+        per_page?: number
+        page?: number
+    }) =>
+        api.get<{ mood_logs: unknown[]; meta: unknown }>(
+            '/wellness/mood',
+            params,
+        ),
+
+    logMood: (data: { mood: string; note?: string; logged_at?: string }) =>
+        api.post<{ message: string; mood_log: unknown; points_earned: number }>(
+            '/wellness/mood',
+            data,
+        ),
+
+    getMoodTrends: (days?: number) =>
+        api.get<{ trends: unknown; distribution: unknown; days: number }>(
+            '/wellness/mood/trends',
+            { days },
+        ),
+
+    getTodayMood: () =>
+        api.get<{ mood_log: unknown | null; has_logged_today: boolean }>(
+            '/wellness/mood/today',
+        ),
+
+    // Journal
+    getJournalEntries: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ journal_entries: unknown[]; meta: unknown }>(
+            '/wellness/journal',
+            params,
+        ),
+
+    createJournalEntry: (data: {
+        content: string
+        mood?: string
+        tags?: string[]
+    }) =>
+        api.post<{ message: string; entry: unknown }>(
+            '/wellness/journal',
+            data,
+        ),
+
+    updateJournalEntry: (
+        id: number,
+        data: { content?: string; mood?: string; tags?: string[] },
+    ) =>
+        api.put<{ message: string; entry: unknown }>(
+            `/wellness/journal/${id}`,
+            data,
+        ),
+
+    deleteJournalEntry: (id: number) =>
+        api.delete<{ message: string }>(`/wellness/journal/${id}`),
+
+    // Metrics
+    getMetrics: (params?: {
+        type?: string
+        start_date?: string
+        end_date?: string
+    }) => api.get<{ metrics: unknown[] }>('/wellness/metrics', params),
+
+    logMetric: (data: {
+        metric_type: string
+        value: number
+        unit?: string
+        logged_at?: string
+    }) =>
+        api.post<{ message: string; metric: unknown }>(
+            '/wellness/metrics',
+            data,
+        ),
+
+    getLatestMetrics: () =>
+        api.get<{ metrics: Record<string, unknown> }>(
+            '/wellness/metrics/latest',
+        ),
+
+    // Goals
+    getGoals: (params?: { category?: string; status?: string }) =>
+        api.get<{ goals: unknown[] }>('/wellness/goals', params),
+
+    createGoal: (data: {
+        category: string
+        title: string
+        description?: string
+        target_value?: number
+        unit?: string
+        start_date?: string
+        target_date?: string
+    }) => api.post<{ message: string; goal: unknown }>('/wellness/goals', data),
+
+    updateGoal: (
+        id: number,
+        data: Partial<{
+            title: string
+            description: string
+            target_value: number
+            target_date: string
+            status: string
+        }>,
+    ) =>
+        api.put<{ message: string; goal: unknown }>(
+            `/wellness/goals/${id}`,
+            data,
+        ),
+
+    updateGoalProgress: (id: number, value: number) =>
+        api.post<{ message: string; goal: unknown }>(
+            `/wellness/goals/${id}/progress`,
+            { value },
+        ),
+
+    // Points
+    getPoints: () =>
+        api.get<{ total_points: number; stats: unknown }>('/wellness/points'),
+
+    getPointsHistory: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ points: unknown[]; meta: unknown }>(
+            '/wellness/points/history',
+            params,
+        ),
+}
+
+// Content API
+export const contentApi = {
+    getArticles: (params?: {
+        category?: string
+        per_page?: number
+        page?: number
+    }) => api.get<{ articles: unknown[]; meta: unknown }>('/articles', params),
+
+    getFeaturedArticles: () =>
+        api.get<{ articles: unknown[] }>('/articles/featured'),
+
+    getArticle: (slug: string) =>
+        api.get<{ article: unknown }>(`/articles/${slug}`),
+
+    getDailyTip: () => api.get<{ tip: unknown }>('/tips/daily'),
+}
+
+// Notifications API
+export const notificationsApi = {
+    list: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ notifications: unknown[]; meta: unknown }>(
+            '/notifications',
+            params,
+        ),
+
+    unreadCount: () =>
+        api.get<{ count: number }>('/notifications/unread-count'),
+
+    markAsRead: (id: number) =>
+        api.put<{ message: string }>(`/notifications/${id}/read`),
+
+    markAllAsRead: () =>
+        api.put<{ message: string }>('/notifications/read-all'),
+
+    delete: (id: number) =>
+        api.delete<{ message: string }>(`/notifications/${id}`),
+}
+
+export default api
