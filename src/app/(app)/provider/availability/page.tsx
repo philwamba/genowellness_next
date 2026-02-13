@@ -9,14 +9,14 @@ import { cn } from '@/lib/utils'
 import { providerDashboardApi } from '@/lib/api/client'
 import { useAuthStore } from '@/lib/stores/auth-store'
 
-type TimeSlot = {
+type AvailabilitySlot = {
     start: string
     end: string
 }
 
 type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
 
-type WeeklySchedule = Record<WeekDay, TimeSlot[]>
+type WeeklySchedule = Record<WeekDay, AvailabilitySlot[]>
 
 const DAYS: { id: WeekDay; label: string }[] = [
     { id: 'monday', label: 'Monday' },
@@ -97,7 +97,7 @@ export default function AvailabilityPage() {
     const updateSlot = (
         day: WeekDay,
         index: number,
-        field: keyof TimeSlot,
+        field: keyof AvailabilitySlot,
         value: string,
     ) => {
         setSchedule((prev) => ({
@@ -109,6 +109,16 @@ export default function AvailabilityPage() {
     }
 
     const handleSave = async () => {
+        // Validate time slots
+        for (const day of DAYS) {
+            for (const slot of schedule[day.id]) {
+                if (slot.start >= slot.end) {
+                    toast.error(`Invalid time slot on ${day.label}: Start time must be before end time`)
+                    return
+                }
+            }
+        }
+
         setIsLoading(true)
         try {
             await providerDashboardApi.updateAvailability(schedule)

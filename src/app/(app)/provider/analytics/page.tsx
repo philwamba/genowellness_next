@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
                     },
                     {
                         label: 'Avg. Rating',
-                        value: overviewData.average_rating.toString(),
+                        value: Number(overviewData.average_rating).toFixed(1),
                         // change: '+4.1%',
                         isPositive: true,
                         icon: FiTrendingUp,

@@ -74,7 +74,21 @@ export default function ProviderProfilePage() {
     }
 
     if (!user || !profile) {
-        return null 
+        return (
+            <div className="min-h-screen bg-gray-50 pb-24 flex items-center justify-center">
+                 <div className="text-center p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Not Found</h2>
+                    <p className="text-gray-500">Unable to load provider profile. Please try again later.</p>
+                    <Button 
+                        variant="outline" 
+                        className="mt-4"
+                        onClick={() => router.back()}
+                    >
+                        Go Back
+                    </Button>
+                 </div>
+            </div>
+        )
     }
 
     return (

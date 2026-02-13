@@ -108,7 +108,11 @@ export function VideoProvider({ children, initialProvider }: VideoProviderProps)
 
     const disconnect = async () => {
         if (room) {
-            await room.leave()
+            try {
+                await room.leave()
+            } catch (err) {
+                console.error('Error disconnecting:', err)
+            }
         }
     }
 
