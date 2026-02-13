@@ -58,9 +58,11 @@ export default function MentalWellnessPage() {
 
                 {/* Quick Actions */}
                 <section className="grid grid-cols-2 gap-3">
-                    <div
+                    <button
+                        type="button"
                         onClick={() => router.push('/wellness/mood')}
-                        className="cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                        aria-label="Open Mood tracker"
+                        className="cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md text-left"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -76,10 +78,12 @@ export default function MentalWellnessPage() {
                             </div>
                             <FiChevronRight className="h-5 w-5 text-gray-400" />
                         </div>
-                    </div>
-                    <div
+                    </button>
+                    <button
+                        type="button"
                         onClick={() => router.push('/wellness/journal')}
-                        className="cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md"
+                        aria-label="Open Journal"
+                        className="cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-shadow hover:shadow-md text-left"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
@@ -95,7 +99,7 @@ export default function MentalWellnessPage() {
                             </div>
                             <FiChevronRight className="h-5 w-5 text-gray-400" />
                         </div>
-                    </div>
+                    </button>
                 </section>
 
                 {/* Mood Check-in */}

@@ -90,7 +90,9 @@ export function MoodCalendar({ moodHistory, className, month }: MoodCalendarProp
         year: 'numeric',
     })
 
-    const today = new Date().toISOString().split('T')[0]
+    // Use local date formatting to avoid UTC timezone issues
+    const now = new Date()
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
 
     return (
         <div className={cn('rounded-xl bg-white p-4 shadow-sm', className)}>

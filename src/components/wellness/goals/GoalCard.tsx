@@ -54,11 +54,24 @@ export function GoalCard({ goal, className, onClick, compact = false }: GoalCard
         }
     }, [onClick, router, goal.id])
 
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleClick()
+            }
+        },
+        [handleClick],
+    )
+
     return (
         <div
+            role="button"
+            tabIndex={0}
             onClick={handleClick}
+            onKeyDown={handleKeyDown}
             className={cn(
-                'cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md',
+                'cursor-pointer rounded-xl bg-white p-4 shadow-sm transition-all hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
                 isOverdue && status === 'active' && 'ring-2 ring-red-200',
                 className,
             )}

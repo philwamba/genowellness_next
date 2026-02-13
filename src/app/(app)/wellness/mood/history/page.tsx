@@ -30,14 +30,14 @@ type DateFilter = 'all' | 'today' | 'week' | 'month'
 
 export default function MoodHistoryPage() {
     const router = useRouter()
-    const { moodHistory, fetchMoodTrends } = useWellnessStore()
+    const { moodHistory, fetchMoodHistory } = useWellnessStore()
 
     const [moodFilter, setMoodFilter] = useState<MoodTypeValue | null>(null)
     const [dateFilter, setDateFilter] = useState<DateFilter>('all')
 
     useEffect(() => {
-        fetchMoodTrends(90)
-    }, [fetchMoodTrends])
+        fetchMoodHistory({ per_page: 100 })
+    }, [fetchMoodHistory])
 
     // Filter moods
     const filteredMoods = useMemo(() => {
