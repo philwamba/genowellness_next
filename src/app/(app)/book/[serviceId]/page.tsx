@@ -30,6 +30,36 @@ export default function BookingPage() {
     const [isLoading, setIsLoading] = useState(true)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
+    const fetchServiceAndProviders = useCallback(async () => {
+        try {
+            const [serviceRes, providersRes] = await Promise.all([
+                servicesApi.show(params.serviceId as string),
+                servicesApi.providers(params.serviceId as string),
+            ])
+            setService(serviceRes.service)
+            setProviders(providersRes.providers)
+        } catch (error) {
+            console.error('Failed to fetch service:', error)
+            toast.error('Failed to fetch service')
+        } finally {
+            setIsLoading(false)
+        }
+    }, [params.serviceId])
+
+    const fetchAvailableSlots = useCallback(async () => {
+        if (!selectedProvider) return
+        try {
+            const response = await servicesApi.availableSlots(
+                selectedProvider.id.toString(),
+                selectedDate,
+            )
+            setAvailableSlots(response.slots)
+        } catch (error) {
+            console.error('Failed to fetch available slots:', error)
+            toast.error('Failed to fetch available slots')
+        }
+    }, [selectedProvider, selectedDate])
+
     useEffect(() => {
         fetchServiceAndProviders()
     }, [fetchServiceAndProviders])
@@ -50,34 +80,6 @@ export default function BookingPage() {
             fetchAvailableSlots()
         }
     }, [selectedProvider, selectedDate, fetchAvailableSlots])
-
-    const fetchServiceAndProviders = useCallback(async () => {
-        try {
-            const [serviceRes, providersRes] = await Promise.all([
-                servicesApi.show(params.serviceId as string),
-                servicesApi.providers(params.serviceId as string),
-            ])
-            setService(serviceRes.service)
-            setProviders(providersRes.providers)
-        } catch (_error) {
-            toast.error('Failed to fetch service')
-        } finally {
-            setIsLoading(false)
-        }
-    }, [params.serviceId])
-
-    const fetchAvailableSlots = useCallback(async () => {
-        if (!selectedProvider) return
-        try {
-            const response = await servicesApi.availableSlots(
-                selectedProvider.id.toString(),
-                selectedDate,
-            )
-            setAvailableSlots(response.slots)
-        } catch (_error) {
-            toast.error('Failed to fetch available slots')
-        }
-    }, [selectedProvider, selectedDate])
 
     const handleProviderSelect = (provider: Provider) => {
         setSelectedProvider(provider)
@@ -108,7 +110,8 @@ export default function BookingPage() {
                 notes,
             })
             router.push(`/bookings/${response.booking.uuid}/success`)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to create booking:', error)
             toast.error('Failed to create booking. Please try again.')
         } finally {
             setIsSubmitting(false)
@@ -247,7 +250,8 @@ export default function BookingPage() {
                                     <p className="text-sm text-primary font-medium mt-1">
                                         {formatCurrency(
                                             provider.hourly_rate ||
-                                                service.base_price,
+                                                service.base_price ||
+                                                0,
                                         )}
                                         /session
                                     </p>
@@ -418,7 +422,8 @@ export default function BookingPage() {
                                 <span className="text-lg font-bold text-primary">
                                     {formatCurrency(
                                         selectedProvider.hourly_rate ||
-                                            service.base_price,
+                                            service.base_price ||
+                                            0,
                                     )}
                                 </span>
                             </div>

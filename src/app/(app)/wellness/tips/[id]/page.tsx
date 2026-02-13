@@ -28,13 +28,20 @@ export default function WellnessTipDetailPage() {
 
     const fetchTip = useCallback(async () => {
         try {
-            // Use daily tip as fallback since tipDetail may not exist
-            const response = await contentApi.getDailyTip()
+            // Try to fetch specific tip, fallback to daily tip
+            let response
+            try {
+                response = await contentApi.getTip(params.id as string)
+            } catch {
+                // Fallback to daily tip if specific tip endpoint fails
+                response = await contentApi.getDailyTip()
+            }
             const fetchedTip = response.tip as ExtendedWellnessTip
             setTip(fetchedTip)
             setIsBookmarked(fetchedTip?.is_bookmarked || false)
             setIsLiked(fetchedTip?.is_liked || false)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch tip:', error)
             toast.error('Failed to fetch tip')
         } finally {
             setIsLoading(false)
@@ -63,8 +70,8 @@ export default function WellnessTipDetailPage() {
                     text: tip.content,
                     url: window.location.href,
                 })
-            } catch (_error) {
-                // Share cancelled by user
+            } catch (error) {
+                console.error('Share cancelled:', error)
             }
         }
     }
@@ -98,7 +105,7 @@ export default function WellnessTipDetailPage() {
         <div>
             <PageHeader
                 title="Wellness Tip"
-                rightContent={
+                action={
                     <div className="flex items-center gap-2">
                         <button
                             onClick={handleBookmark}

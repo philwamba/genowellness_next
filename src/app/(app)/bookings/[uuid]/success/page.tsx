@@ -18,7 +18,8 @@ export default function BookingSuccessPage() {
         try {
             const response = await bookingsApi.get(params.uuid as string)
             setBooking(response.booking as Booking)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch booking:', error)
             toast.error('Failed to fetch booking')
         } finally {
             setIsLoading(false)

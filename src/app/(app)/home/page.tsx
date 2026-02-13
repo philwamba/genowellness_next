@@ -80,7 +80,8 @@ export default function HomePage() {
         try {
             const response = await contentApi.getDailyTip()
             setDailyTip(response.tip as WellnessTip)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch daily tip:', error)
             toast.error('Failed to fetch daily tip')
         }
     }, [])
@@ -89,7 +90,8 @@ export default function HomePage() {
         try {
             const response = await servicesApi.list()
             setServices(response.services as Service[])
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch services:', error)
             toast.error('Failed to fetch services')
         }
     }, [])
@@ -98,7 +100,8 @@ export default function HomePage() {
         try {
             const response = await contentApi.getFeaturedArticles()
             setArticles((response.articles as Article[]).slice(0, 4))
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch articles:', error)
             toast.error('Failed to fetch articles')
         }
     }, [])
@@ -116,7 +119,8 @@ export default function HomePage() {
             if (result.points_earned > 0) {
                 toast.success(`You earned ${result.points_earned} points!`)
             }
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to log mood:', error)
             toast.error('Failed to log mood')
         }
     }

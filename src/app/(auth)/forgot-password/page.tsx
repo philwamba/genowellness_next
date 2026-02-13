@@ -28,7 +28,8 @@ export default function ForgotPasswordPage() {
             }
 
             setIsSubmitted(true)
-        } catch (err) {
+        } catch (error) {
+            console.error('Failed to send reset link:', error)
             setError('Failed to send reset link. Please try again.')
         } finally {
             setIsLoading(false)

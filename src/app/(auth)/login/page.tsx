@@ -24,7 +24,7 @@ export default function LoginPage() {
             await loginWithEmail(email, password)
             router.push('/home')
         } catch (error) {
-            // Error is already set in the store
+            console.error('Login failed:', error)
         }
     }
 
@@ -34,7 +34,7 @@ export default function LoginPage() {
             await loginWithGoogle()
             router.push('/home')
         } catch (error) {
-            // Error is already set in the store
+            console.error('Google login failed:', error)
         }
     }
 

@@ -32,7 +32,8 @@ export default function SessionDetailPage() {
         try {
             const response = await sessionsApi.get(params.uuid as string)
             setSession(response.session as Session)
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to fetch session:', error)
             toast.error('Failed to fetch session')
         } finally {
             setIsLoading(false)
@@ -57,7 +58,8 @@ export default function SessionDetailPage() {
             toast.success('Session cancelled successfully')
             setShowCancelModal(false)
             fetchSession()
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to cancel session:', error)
             toast.error('Failed to cancel session. Please try again.')
         } finally {
             setIsSubmitting(false)
@@ -72,7 +74,8 @@ export default function SessionDetailPage() {
             toast.success('Review submitted successfully')
             setShowReviewModal(false)
             fetchSession()
-        } catch (_error) {
+        } catch (error) {
+            console.error('Failed to submit review:', error)
             toast.error('Failed to submit review. Please try again.')
         } finally {
             setIsSubmitting(false)
@@ -200,13 +203,13 @@ export default function SessionDetailPage() {
                     </div>
                 </section>
 
-                {/* Notes */}
-                {session.notes && (
+                {/* Description */}
+                {session.description && (
                     <section className="bg-white rounded-2xl p-4 shadow-sm">
                         <h3 className="font-semibold text-gray-900 mb-2">
-                            Session Notes
+                            Session Details
                         </h3>
-                        <p className="text-gray-600">{session.notes}</p>
+                        <p className="text-gray-600">{session.description}</p>
                     </section>
                 )}
 
@@ -216,22 +219,10 @@ export default function SessionDetailPage() {
                         Payment Details
                     </h3>
                     <div className="space-y-2">
-                        <div className="flex justify-between text-gray-600">
-                            <span>Session Fee</span>
-                            <span>{formatCurrency(session.amount)}</span>
-                        </div>
-                        {session.platform_fee > 0 && (
-                            <div className="flex justify-between text-gray-600">
-                                <span>Platform Fee</span>
-                                <span>
-                                    {formatCurrency(session.platform_fee)}
-                                </span>
-                            </div>
-                        )}
-                        <div className="flex justify-between font-semibold text-gray-900 pt-2 border-t border-gray-100">
+                        <div className="flex justify-between font-semibold text-gray-900">
                             <span>Total</span>
                             <span className="text-primary">
-                                {formatCurrency(session.total_amount)}
+                                {formatCurrency(session.price)}
                             </span>
                         </div>
                     </div>
@@ -249,7 +240,7 @@ export default function SessionDetailPage() {
                     )}
 
                     {session.status === 'completed' &&
-                        !session.has_reviewed && (
+                        !session.review && (
                             <button
                                 onClick={() => setShowReviewModal(true)}
                                 className="w-full py-4 bg-yellow-500 text-white rounded-2xl font-medium flex items-center justify-center gap-2">

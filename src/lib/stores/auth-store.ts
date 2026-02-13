@@ -37,7 +37,14 @@ interface AuthState {
     loginWithGoogle: () => Promise<void>
     logout: () => Promise<void>
     refreshUser: () => Promise<void>
-    initializeAuth: () => void
+    updateProfile: (updates: Partial<{
+        name: string
+        phone_number: string
+        address: string
+        date_of_birth: string
+        gender: string
+    }>) => Promise<void>
+    initializeAuth: () => (() => void) | undefined
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -160,10 +167,27 @@ export const useAuthStore = create<AuthState>()(
 
                 try {
                     const response = await authApi.getUser()
-                    set({ user: response.user as User })
+                    set({ user: response.user as User, isAuthenticated: true })
                 } catch (error) {
-                    // Token might be invalid, clear auth state
+                    console.error('Failed to fetch user:', error)
                     get().logout()
+                }
+            },
+
+            updateProfile: async (updates) => {
+                set({ isLoading: true, error: null })
+                try {
+                    const response = await authApi.updateProfile(updates)
+                    set({ user: response.user as User, isLoading: false })
+                } catch (error) {
+                    set({
+                        error:
+                            error instanceof Error
+                                ? error.message
+                                : 'Failed to update profile',
+                        isLoading: false,
+                    })
+                    throw error
                 }
             },
 
@@ -208,6 +232,11 @@ export const useAuthStore = create<AuthState>()(
             partialize: state => ({
                 token: state.token,
             }),
+            onRehydrateStorage: () => state => {
+                if (state?.token) {
+                    api.setToken(state.token)
+                }
+            },
         },
     ),
 )

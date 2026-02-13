@@ -10,9 +10,6 @@ import {
     MenuButton,
     MenuItem,
     MenuItems,
-    Popover,
-    PopoverButton,
-    PopoverPanel,
     Transition,
 } from '@headlessui/react'
 import { FiChevronDown, FiMenu, FiX } from 'react-icons/fi'
