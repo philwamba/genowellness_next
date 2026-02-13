@@ -345,3 +345,64 @@ export interface RegisterData {
     password_confirmation: string
     phone_number?: string
 }
+
+// Payment Types
+export interface Payment {
+    id: number
+    uuid: string
+    booking_id: number
+    session_id: number | null
+    payer_id: number
+    payee_id: number
+    amount: number
+    platform_fee: number
+    provider_amount: number
+    currency: string
+    payment_method: 'card' | 'mpesa' | 'bank_transfer' | 'wallet'
+    transaction_id: string | null
+    merchant_request_id: string | null
+    checkout_request_id: string | null
+    status:
+        | 'pending'
+        | 'processing'
+        | 'completed'
+        | 'failed'
+        | 'refunded'
+        | 'cancelled'
+    failure_reason: string | null
+    metadata: Record<string, unknown> | null
+    completed_at: string | null
+    created_at: string
+    updated_at: string
+    booking?: Booking
+    payer?: User
+    payee?: User
+}
+
+export interface Wallet {
+    id: number
+    user_id: number
+    balance: number
+    pending_balance: number
+    currency: string
+    created_at: string
+    updated_at: string
+    user?: User
+    transactions?: WalletTransaction[]
+}
+
+export interface WalletTransaction {
+    id: number
+    wallet_id: number
+    type: 'credit' | 'debit' | 'withdrawal' | 'refund' | 'commission'
+    amount: number
+    balance_after: number
+    reference_type: string | null
+    reference_id: number | null
+    description: string | null
+    status: 'pending' | 'completed' | 'failed'
+    metadata: Record<string, unknown> | null
+    created_at: string
+    updated_at: string
+    wallet?: Wallet
+}

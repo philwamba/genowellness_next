@@ -39,7 +39,8 @@ export default function SearchPage() {
             try {
                 const parsed = JSON.parse(saved)
                 if (Array.isArray(parsed)) {
-                    setRecentSearches(parsed)
+                    const validSearches = parsed.filter((item): item is string => typeof item === 'string')
+                    setRecentSearches(validSearches)
                 }
             } catch (e) {
                 console.error('Failed to parse recent searches', e)

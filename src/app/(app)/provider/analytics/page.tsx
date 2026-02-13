@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { formatCurrency } from '@/lib/utils'
+import { providerDashboardApi } from '@/lib/api/client'
 import {
     AreaChart,
     Area,
@@ -17,73 +18,85 @@ import {
 } from 'recharts'
 import { FiDollarSign, FiCalendar, FiUsers, FiTrendingUp } from 'react-icons/fi'
 
-const MOCK_EARNINGS_DATA = [
-    { name: 'Mon', amount: 120 },
-    { name: 'Tue', amount: 300 },
-    { name: 'Wed', amount: 240 },
-    { name: 'Thu', amount: 450 },
-    { name: 'Fri', amount: 180 },
-    { name: 'Sat', amount: 600 },
-    { name: 'Sun', amount: 400 },
-]
 
-const MOCK_SESSIONS_DATA = [
-    { name: 'Mon', count: 2 },
-    { name: 'Tue', count: 5 },
-    { name: 'Wed', count: 4 },
-    { name: 'Thu', count: 7 },
-    { name: 'Fri', count: 3 },
-    { name: 'Sat', count: 10 },
-    { name: 'Sun', count: 6 },
-]
 
 export default function AnalyticsPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
+    const [stats, setStats] = useState<any[]>([])
+    const [earningsData, setEarningsData] = useState<any[]>([])
+    const [sessionsData, setSessionsData] = useState<any[]>([])
 
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 800)
-        return () => clearTimeout(timer)
-    }, [])
+        const loadAnalytics = async () => {
+            try {
+                const [overview, sessions, revenue] = await Promise.all([
+                    providerDashboardApi.getAnalyticsOverview(),
+                    providerDashboardApi.getSessionsAnalytics(),
+                    providerDashboardApi.getRevenueAnalytics(),
+                ])
 
-    const stats = [
-        {
-            label: 'Total Earnings',
-            value: formatCurrency(2290),
-            change: '+12.5%',
-            isPositive: true,
-            icon: FiDollarSign,
-            color: 'text-green-600',
-            bg: 'bg-green-100',
-        },
-        {
-            label: 'Total Sessions',
-            value: '37',
-            change: '+8.2%',
-            isPositive: true,
-            icon: FiCalendar,
-            color: 'text-blue-600',
-            bg: 'bg-blue-100',
-        },
-        {
-            label: 'New Clients',
-            value: '12',
-            change: '-2.4%',
-            isPositive: false,
-            icon: FiUsers,
-            color: 'text-purple-600',
-            bg: 'bg-purple-100',
-        },
-        {
-            label: 'Avg. Rate',
-            value: '$62/hr',
-            change: '+4.1%',
-            isPositive: true,
-            icon: FiTrendingUp,
-            color: 'text-orange-600',
-            bg: 'bg-orange-100',
-        },
-    ]
+                const overviewData = overview.overview
+                setStats([
+                    {
+                        label: 'Total Earnings',
+                        value: formatCurrency(overviewData.total_earnings),
+                        // change: '+12.5%', // Need to calculate change
+                        isPositive: true,
+                        icon: FiDollarSign,
+                        color: 'text-green-600',
+                        bg: 'bg-green-100',
+                    },
+                    {
+                        label: 'Total Sessions',
+                        value: overviewData.total_sessions.toString(),
+                        // change: '+8.2%',
+                        isPositive: true,
+                        icon: FiCalendar,
+                        color: 'text-blue-600',
+                        bg: 'bg-blue-100',
+                    },
+                    {
+                        label: 'Total Clients',
+                        value: overviewData.total_clients.toString(),
+                        // change: '-2.4%',
+                        isPositive: true,
+                        icon: FiUsers,
+                        color: 'text-purple-600',
+                        bg: 'bg-purple-100',
+                    },
+                    {
+                        label: 'Avg. Rating',
+                        value: overviewData.average_rating.toString(),
+                        // change: '+4.1%',
+                        isPositive: true,
+                        icon: FiTrendingUp,
+                        color: 'text-orange-600',
+                        bg: 'bg-orange-100',
+                    },
+                ])
+
+                // Transform revenue data for chart
+                setEarningsData(revenue.data.map((item: any) => ({
+                    name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                    amount: item.amount
+                })))
+
+                // Transform sessions data for chart
+                setSessionsData(sessions.data.map((item: any) => ({
+                    name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                    count: item.count
+                })))
+
+            } catch (error) {
+                console.error('Failed to load analytics:', error)
+            } finally {
+                setIsLoading(false)
+            }
+        }
+
+        loadAnalytics()
+    }, [])
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">
@@ -107,7 +120,7 @@ export default function AnalyticsPage() {
                                 >
                                     <stat.icon className={`w-5 h-5 ${stat.color}`} />
                                 </div>
-                                <span
+                                {/* <span
                                     className={`text-xs font-medium ${
                                         stat.isPositive
                                             ? 'text-green-600'
@@ -115,7 +128,7 @@ export default function AnalyticsPage() {
                                     }`}
                                 >
                                     {stat.change}
-                                </span>
+                                </span> */}
                             </div>
                             <p className="text-sm text-gray-500">{stat.label}</p>
                             <p className="text-xl font-bold text-gray-900">
@@ -128,14 +141,14 @@ export default function AnalyticsPage() {
                 {/* Earnings Chart */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                        Weekly Earnings
+                        Revenue History (Last 30 Days)
                     </h3>
                     <div className="h-64 w-full">
                         {isLoading ? (
                             <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg" />
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={MOCK_EARNINGS_DATA}>
+                                <AreaChart data={earningsData}>
                                     <defs>
                                         <linearGradient
                                             id="colorEarnings"
@@ -197,14 +210,14 @@ export default function AnalyticsPage() {
                 {/* Sessions Chart */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm">
                     <h3 className="text-lg font-semibold text-gray-900 mb-6">
-                        Sessions Overview
+                        Sessions (Last 30 Days)
                     </h3>
                     <div className="h-64 w-full">
                         {isLoading ? (
                             <div className="h-full w-full bg-gray-100 animate-pulse rounded-lg" />
                         ) : (
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={MOCK_SESSIONS_DATA}>
+                                <BarChart data={sessionsData}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                     <XAxis
                                         dataKey="name"
@@ -217,6 +230,7 @@ export default function AnalyticsPage() {
                                         axisLine={false}
                                         tickLine={false}
                                         tick={{ fontSize: 12, fill: '#6b7280' }}
+                                        allowDecimals={false}
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#f3f4f6' }}

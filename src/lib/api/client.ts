@@ -4,6 +4,10 @@ import type {
     Booking,
     TimeSlot,
     User,
+    Payment,
+    Wallet,
+    WalletTransaction,
+    Session,
 } from '@/types'
 
 interface PaginationMeta {
@@ -70,9 +74,12 @@ class ApiClient {
         const url = this.buildUrl(endpoint, params)
 
         const headers: HeadersInit = {
-            'Content-Type': 'application/json',
             Accept: 'application/json',
             ...options.headers,
+        }
+
+        if (!(fetchOptions.body instanceof FormData) && !(headers as Record<string, string>)['Content-Type']) {
+            (headers as Record<string, string>)['Content-Type'] = 'application/json'
         }
 
         const token = this.getToken()
@@ -108,17 +115,21 @@ class ApiClient {
         return this.request<T>(endpoint, { method: 'GET', params })
     }
 
-    async post<T>(endpoint: string, data?: unknown): Promise<T> {
+    async post<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+        const isFormData = data instanceof FormData
         return this.request<T>(endpoint, {
             method: 'POST',
-            body: data ? JSON.stringify(data) : undefined,
+            body: isFormData ? (data as BodyInit) : (data ? JSON.stringify(data) : undefined),
+            ...options,
         })
     }
 
-    async put<T>(endpoint: string, data?: unknown): Promise<T> {
+    async put<T>(endpoint: string, data?: unknown, options?: RequestInit): Promise<T> {
+        const isFormData = data instanceof FormData
         return this.request<T>(endpoint, {
             method: 'PUT',
-            body: data ? JSON.stringify(data) : undefined,
+            body: isFormData ? (data as BodyInit) : (data ? JSON.stringify(data) : undefined),
+            ...options,
         })
     }
 
@@ -529,6 +540,65 @@ export const notificationsApi = {
 
     delete: (id: number) =>
         api.delete<{ message: string }>(`/notifications/${id}`),
+
+    saveFcmToken: (token: string) =>
+        api.post<{ message: string }>('/notifications/save-fcm-token', {
+            fcm_token: token,
+        }),
+}
+
+// Payments API
+export const paymentsApi = {
+    initiate: (data: {
+        booking_id: string
+        phone_number: string
+        amount: number
+    }) =>
+        api.post<{
+            message: string
+            payment: Payment
+            mpesa_response: unknown
+        }>('/payments/initiate', data),
+
+    getHistory: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ data: Payment[]; meta: PaginationMeta }>(
+            '/payments/history',
+            params,
+        ),
+
+    getWallet: () => api.get<{ wallet: Wallet }>('/wallet'),
+
+    getWalletTransactions: (params?: { per_page?: number; page?: number }) =>
+        api.get<{ data: WalletTransaction[]; meta: PaginationMeta }>(
+            '/wallet/transactions',
+            params,
+        ),
+}
+
+// Provider Dashboard API
+export const providerDashboardApi = {
+    getDashboard: () => api.get<{ stats: any; upcoming_sessions: Session[] }>('/provider/dashboard'),
+
+    // Availability
+    getAvailability: () => api.get<{ time_slots: TimeSlot[]; blocked_dates: string[]; timezone: string }>('/provider/availability'),
+    updateAvailability: (schedule: any) => api.put('/provider/availability', { schedule }),
+    getBlockedDates: () => api.get<{ data: { id: number; blocked_date: string; reason: string }[] }>('/provider/blocked-dates'),
+    blockDate: (date: string, reason?: string) => api.post('/provider/blocked-dates', { date, reason }),
+    unblockDate: (id: number) => api.delete(`/provider/blocked-dates/${id}`),
+
+    // Profile
+    getProfile: () => api.get<{ data: ProviderProfile }>('/provider/profile'),
+    updateProfile: (data: Partial<ProviderProfile>) => api.put<{ data: ProviderProfile }>('/provider/profile', data),
+    updateAvatar: (file: File) => {
+        const formData = new FormData()
+        formData.append('avatar', file)
+        return api.post<{ avatar_url: string }>('/provider/profile/avatar', formData)
+    },
+
+    // Analytics
+    getAnalyticsOverview: () => api.get<{ overview: any }>('/provider/analytics'),
+    getSessionsAnalytics: () => api.get<{ data: any[] }>('/provider/analytics/sessions'),
+    getRevenueAnalytics: () => api.get<{ data: any[] }>('/provider/analytics/revenue'),
 }
 
 export default api
