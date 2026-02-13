@@ -30,11 +30,20 @@ export default function SearchPage() {
     const [recentSearches, setRecentSearches] = useState<string[]>([])
     const [hasSearched, setHasSearched] = useState(false)
 
+    const [lastQuery, setLastQuery] = useState('')
+
     useEffect(() => {
         // Load recent searches from localStorage
         const saved = localStorage.getItem('recent_searches')
         if (saved) {
-            setRecentSearches(JSON.parse(saved))
+            try {
+                const parsed = JSON.parse(saved)
+                if (Array.isArray(parsed)) {
+                    setRecentSearches(parsed)
+                }
+            } catch (e) {
+                console.error('Failed to parse recent searches', e)
+            }
         }
     }, [])
 
@@ -56,6 +65,7 @@ export default function SearchPage() {
 
         setIsSearching(true)
         setHasSearched(true)
+        setLastQuery(searchQuery.trim())
         saveRecentSearch(searchQuery.trim())
 
         try {
@@ -122,14 +132,14 @@ export default function SearchPage() {
         { id: 'articles' as SearchCategory, label: 'Articles' },
     ]
 
-    const totalResults =
-        results.services.length +
-        results.providers.length +
-        results.articles.length
-
     const showServices = category === 'all' || category === 'services'
     const showProviders = category === 'all' || category === 'providers'
     const showArticles = category === 'all' || category === 'articles'
+
+    const displayedCount =
+        (showServices ? results.services.length : 0) +
+        (showProviders ? results.providers.length : 0) +
+        (showArticles ? results.articles.length : 0)
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">
@@ -138,8 +148,10 @@ export default function SearchPage() {
             <main className="px-4 py-4">
                 {/* Search Bar */}
                 <form onSubmit={handleSearch} className="relative mb-4">
-                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" aria-hidden="true" />
+                    <label htmlFor="search-input" className="sr-only">Search</label>
                     <input
+                        id="search-input"
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
@@ -149,10 +161,11 @@ export default function SearchPage() {
                     {query && (
                         <button
                             type="button"
+                            aria-label="Clear search"
                             onClick={() => setQuery('')}
                             className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         >
-                            <FiX className="w-5 h-5" />
+                            <FiX className="w-5 h-5" aria-hidden="true" />
                         </button>
                     )}
                 </form>
@@ -230,8 +243,8 @@ export default function SearchPage() {
                 {!isSearching && hasSearched && (
                     <>
                         <p className="text-sm text-gray-500 mb-4">
-                            {totalResults} result{totalResults !== 1 ? 's' : ''} for
-                            "{query}"
+                            {displayedCount} result{displayedCount !== 1 ? 's' : ''} for
+                            "{lastQuery}"
                         </p>
 
                         {/* Services */}
@@ -372,11 +385,11 @@ export default function SearchPage() {
                         )}
 
                         {/* No Results */}
-                        {totalResults === 0 && (
+                        {displayedCount === 0 && (
                             <div className="text-center py-12">
                                 <FiSearch className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                                 <p className="text-gray-500 mb-2">
-                                    No results found for "{query}"
+                                    No results found for "{lastQuery}"
                                 </p>
                                 <p className="text-sm text-gray-400">
                                     Try a different search term

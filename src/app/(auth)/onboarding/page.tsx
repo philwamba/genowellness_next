@@ -210,8 +210,9 @@ export default function OnboardingPage() {
                                     <button
                                         key={dimension.id}
                                         onClick={() => toggleArea(dimension.id)}
+                                        aria-pressed={isSelected}
                                         className={cn(
-                                            'flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left',
+                                            'flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                                             isSelected
                                                 ? 'border-primary bg-primary/5'
                                                 : 'border-gray-200 bg-white hover:border-gray-300',

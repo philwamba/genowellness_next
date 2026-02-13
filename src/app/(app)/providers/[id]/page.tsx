@@ -28,8 +28,15 @@ export default function ProviderProfilePage() {
     const [activeTab, setActiveTab] = useState<'about' | 'services' | 'reviews'>('about')
 
     const fetchProviderDetails = useCallback(async () => {
+        const idStr = params.id as string
+        if (!/^\d+$/.test(idStr)) {
+            toast.error('Invalid provider ID')
+            router.push('/providers')
+            return
+        }
+
         try {
-            const providerId = parseInt(params.id as string)
+            const providerId = parseInt(idStr)
             const [providerRes, servicesRes, reviewsRes] = await Promise.all([
                 providersApi.get(providerId),
                 providersApi.getServices(providerId),
@@ -45,7 +52,7 @@ export default function ProviderProfilePage() {
         } finally {
             setIsLoading(false)
         }
-    }, [params.id])
+    }, [params.id, router])
 
     useEffect(() => {
         fetchProviderDetails()
@@ -428,17 +435,21 @@ export default function ProviderProfilePage() {
                 )}
 
                 {/* Book Now Button */}
-                <button
-                    onClick={() =>
-                        router.push(
-                            `/book/${services[0]?.id || ''}?provider=${provider.id}`,
-                        )
-                    }
-                    className="fixed bottom-24 left-4 right-4 py-4 bg-primary text-white rounded-2xl font-medium text-lg shadow-lg z-10"
-                >
-                    <FiCalendar className="inline-block w-5 h-5 mr-2" />
-                    Book Session
-                </button>
+                {services.length > 0 && (
+                    <button
+                        onClick={() => {
+                            if (services[0]?.id) {
+                                router.push(
+                                    `/book/${services[0].id}?provider=${provider.id}`,
+                                )
+                            }
+                        }}
+                        className="fixed bottom-24 left-4 right-4 py-4 bg-primary text-white rounded-2xl font-medium text-lg shadow-lg z-10 hover:bg-primary/90 transition-colors"
+                    >
+                        <FiCalendar className="inline-block w-5 h-5 mr-2" />
+                        Book Session
+                    </button>
+                )}
             </main>
         </div>
     )

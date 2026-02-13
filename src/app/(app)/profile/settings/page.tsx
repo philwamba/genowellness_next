@@ -138,7 +138,6 @@ export default function ProfileSettingsPage() {
                                     type="email"
                                     value={email}
                                     readOnly
-                                    disabled
                                     className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
                                 />
                             </div>

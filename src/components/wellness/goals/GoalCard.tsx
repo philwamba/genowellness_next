@@ -56,7 +56,7 @@ export function GoalCard({ goal, className, onClick, compact = false }: GoalCard
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
                 e.preventDefault()
                 handleClick()
             }

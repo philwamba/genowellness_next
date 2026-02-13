@@ -19,6 +19,23 @@ import {
 
 type TabType = 'upcoming' | 'past' | 'cancelled'
 
+const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-700' },
+    confirmed: { label: 'Confirmed', className: 'bg-green-100 text-green-700' },
+    rescheduled: { label: 'Rescheduled', className: 'bg-blue-100 text-blue-700' },
+    completed: { label: 'Completed', className: 'bg-gray-100 text-gray-700' },
+    cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-700' },
+}
+
+function getStatusBadge(status: string) {
+    const config = STATUS_CONFIG[status] || STATUS_CONFIG.pending
+    return (
+        <span className={cn('px-2 py-0.5 rounded-full text-xs font-medium', config.className)}>
+            {config.label}
+        </span>
+    )
+}
+
 export default function BookingsPage() {
     const router = useRouter()
     const [activeTab, setActiveTab] = useState<TabType>('upcoming')
@@ -74,43 +91,7 @@ export default function BookingsPage() {
         { id: 'cancelled' as TabType, label: 'Cancelled' },
     ]
 
-    const getStatusBadge = (status: string) => {
-        const statusConfig: Record<string, { label: string; className: string }> = {
-            pending: {
-                label: 'Pending',
-                className: 'bg-yellow-100 text-yellow-700',
-            },
-            confirmed: {
-                label: 'Confirmed',
-                className: 'bg-green-100 text-green-700',
-            },
-            rescheduled: {
-                label: 'Rescheduled',
-                className: 'bg-blue-100 text-blue-700',
-            },
-            completed: {
-                label: 'Completed',
-                className: 'bg-gray-100 text-gray-700',
-            },
-            cancelled: {
-                label: 'Cancelled',
-                className: 'bg-red-100 text-red-700',
-            },
-        }
 
-        const config = statusConfig[status] || statusConfig.pending
-
-        return (
-            <span
-                className={cn(
-                    'px-2 py-0.5 rounded-full text-xs font-medium',
-                    config.className,
-                )}
-            >
-                {config.label}
-            </span>
-        )
-    }
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">
@@ -278,8 +259,23 @@ export default function BookingsPage() {
 
             {/* Cancel Modal */}
             {showCancelModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+                    onClick={() => {
+                        setShowCancelModal(null)
+                        setCancelReason('')
+                    }}
+                >
+                    <div 
+                        className="bg-white rounded-2xl p-6 w-full max-w-md"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                                setShowCancelModal(null)
+                                setCancelReason('')
+                            }
+                        }}
+                    >
                         <h3 className="text-lg font-semibold text-gray-900 mb-4">
                             Cancel Booking
                         </h3>
@@ -292,6 +288,7 @@ export default function BookingsPage() {
                             onChange={(e) => setCancelReason(e.target.value)}
                             placeholder="Reason for cancellation (optional)"
                             rows={3}
+                            autoFocus
                             className="w-full p-3 border border-gray-200 rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
                         />
                         <div className="flex gap-3">

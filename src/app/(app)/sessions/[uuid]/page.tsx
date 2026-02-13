@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { toast } from 'sonner'
@@ -16,6 +16,9 @@ import {
     FiStar,
     FiX,
 } from 'react-icons/fi'
+import { VideoProvider } from '@/lib/video/context'
+import { VideoRoom } from '@/components/video/VideoRoom'
+import { VideoProviderFactory } from '@/lib/video/factory'
 
 export default function SessionDetailPage() {
     const params = useParams()
@@ -27,6 +30,7 @@ export default function SessionDetailPage() {
     const [rating, setRating] = useState(0)
     const [review, setReview] = useState('')
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [activeVideo, setActiveVideo] = useState(false)
 
     const fetchSession = useCallback(async () => {
         try {
@@ -45,9 +49,7 @@ export default function SessionDetailPage() {
     }, [fetchSession])
 
     const handleJoin = () => {
-        if (session?.meeting_url) {
-            window.open(session.meeting_url, '_blank')
-        }
+        setActiveVideo(true)
     }
 
     const handleCancel = async () => {
@@ -120,6 +122,15 @@ export default function SessionDetailPage() {
         )
     }
 
+    // Initialize provider based on configuration
+    // In a real app, this might come from env or session settings
+    const videoProvider = useMemo(() => {
+        // Default to Daily for now, or check generic config
+        // If we want to switch between generic providers we can use env
+        const providerName = process.env.NEXT_PUBLIC_VIDEO_PROVIDER === 'livekit' ? 'livekit' : 'daily'
+        return VideoProviderFactory.create(providerName)
+    }, [])
+
     if (isLoading) {
         return (
             <div>
@@ -145,222 +156,244 @@ export default function SessionDetailPage() {
     }
 
     return (
-        <div>
-            <PageHeader title="Session Details" />
+        <VideoProvider initialProvider={videoProvider}>
+            <div>
+                <PageHeader title="Session Details" />
 
-            <main className="px-4 py-6 space-y-6">
-                {/* Session Info */}
-                <section className="bg-white rounded-2xl p-4 shadow-sm">
-                    <div className="flex items-start justify-between mb-4">
-                        <h1 className="text-xl font-bold text-gray-900">
-                            {session.title}
-                        </h1>
-                        {getStatusBadge(session.status)}
-                    </div>
+                <main className="px-4 py-6 space-y-6">
+                    {activeVideo && session.meeting_url ? (
+                        <section className="bg-white rounded-2xl p-4 shadow-sm">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Live Session</h2>
+                            <VideoRoom 
+                                token="INSERT_TOKEN_HERE" // We need a token mechanism. For Daily it might be implied in URL. For LiveKit need token.
+                                roomUrl={session.meeting_url} 
+                            />
+                             <button
+                                onClick={() => setActiveVideo(false)}
+                                className="mt-4 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm"
+                            >
+                                Close Video View
+                            </button>
+                        </section>
+                    ) : (
+                        <>
+                            {/* Session Info */}
+                            <section className="bg-white rounded-2xl p-4 shadow-sm">
+                                <div className="flex items-start justify-between mb-4">
+                                    <h1 className="text-xl font-bold text-gray-900">
+                                        {session.title}
+                                    </h1>
+                                    {getStatusBadge(session.status)}
+                                </div>
 
-                    {session.provider && (
-                        <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
-                            <div className="relative w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-                                {session.provider.avatar ? (
-                                    <Image
-                                        src={session.provider.avatar}
-                                        alt={session.provider.name || 'Provider'}
-                                        fill
-                                        className="object-cover"
-                                    />
-                                ) : (
-                                    <span className="flex h-full w-full items-center justify-center text-sm font-medium text-primary">
-                                        {getInitials(session.provider.name || 'P')}
-                                    </span>
+                                {session.provider && (
+                                    <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
+                                        <div className="relative w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+                                            {session.provider.avatar ? (
+                                                <Image
+                                                    src={session.provider.avatar}
+                                                    alt={session.provider.name || 'Provider'}
+                                                    fill
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <span className="flex h-full w-full items-center justify-center text-sm font-medium text-primary">
+                                                    {getInitials(session.provider.name || 'P')}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-gray-900">
+                                                {session.provider.name}
+                                            </p>
+                                            <p className="text-sm text-gray-500">
+                                                {session.provider.title}
+                                            </p>
+                                        </div>
+                                    </div>
                                 )}
-                            </div>
-                            <div>
-                                <p className="font-medium text-gray-900">
-                                    {session.provider.name}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                    {session.provider.title}
-                                </p>
-                            </div>
-                        </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <FiCalendar className="w-5 h-5 text-gray-400" />
+                                        <span>{formatDateTime(session.scheduled_at)}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-gray-600">
+                                        <FiClock className="w-5 h-5 text-gray-400" />
+                                        <span>{session.duration_minutes} minutes</span>
+                                    </div>
+                                    {session.meeting_url && (
+                                        <div className="flex items-center gap-3 text-gray-600">
+                                            <FiVideo className="w-5 h-5 text-gray-400" />
+                                            <span>Video call session</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Description */}
+                            {session.description && (
+                                <section className="bg-white rounded-2xl p-4 shadow-sm">
+                                    <h3 className="font-semibold text-gray-900 mb-2">
+                                        Session Details
+                                    </h3>
+                                    <p className="text-gray-600">{session.description}</p>
+                                </section>
+                            )}
+
+                            {/* Payment Info */}
+                            <section className="bg-white rounded-2xl p-4 shadow-sm">
+                                <h3 className="font-semibold text-gray-900 mb-3">
+                                    Payment Details
+                                </h3>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between font-semibold text-gray-900">
+                                        <span>Total</span>
+                                        <span className="text-primary">
+                                            {formatCurrency(session.price)}
+                                        </span>
+                                    </div>
+                                </div>
+                            </section>
+                        </>
                     )}
 
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3 text-gray-600">
-                            <FiCalendar className="w-5 h-5 text-gray-400" />
-                            <span>{formatDateTime(session.scheduled_at)}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-gray-600">
-                            <FiClock className="w-5 h-5 text-gray-400" />
-                            <span>{session.duration_minutes} minutes</span>
-                        </div>
-                        {session.meeting_url && (
-                            <div className="flex items-center gap-3 text-gray-600">
-                                <FiVideo className="w-5 h-5 text-gray-400" />
-                                <span>Video call session</span>
-                            </div>
-                        )}
-                    </div>
-                </section>
+                    {/* Actions */}
+                    {!activeVideo && (
+                        <div className="space-y-3">
+                            {session.can_join && (
+                                <button
+                                    onClick={handleJoin}
+                                    className="w-full py-4 bg-primary text-white rounded-2xl font-medium flex items-center justify-center gap-2">
+                                    <FiVideo className="w-5 h-5" />
+                                    Join Session
+                                </button>
+                            )}
 
-                {/* Description */}
-                {session.description && (
-                    <section className="bg-white rounded-2xl p-4 shadow-sm">
-                        <h3 className="font-semibold text-gray-900 mb-2">
-                            Session Details
-                        </h3>
-                        <p className="text-gray-600">{session.description}</p>
-                    </section>
+                            {session.status === 'completed' &&
+                                !session.review && (
+                                    <button
+                                        onClick={() => setShowReviewModal(true)}
+                                        className="w-full py-4 bg-yellow-500 text-white rounded-2xl font-medium flex items-center justify-center gap-2">
+                                        <FiStar className="w-5 h-5" />
+                                        Leave a Review
+                                    </button>
+                                )}
+
+                            {session.can_cancel && (
+                                <button
+                                    onClick={() => setShowCancelModal(true)}
+                                    className="w-full py-3 bg-red-50 text-red-600 rounded-2xl font-medium">
+                                    Cancel Session
+                                </button>
+                            )}
+
+                            <button
+                                onClick={() =>
+                                    router.push(`/messages/${session.provider?.id}`)
+                                }
+                                className="w-full py-3 bg-gray-100 text-gray-700 rounded-2xl font-medium flex items-center justify-center gap-2">
+                                <FiMessageSquare className="w-5 h-5" />
+                                Message Provider
+                            </button>
+                        </div>
+                    )}
+                </main>
+
+                {/* Cancel Modal */}
+                {showCancelModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Cancel Session
+                                </h3>
+                                <button
+                                    onClick={() => setShowCancelModal(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-full">
+                                    <FiX className="w-5 h-5" />
+                                </button>
+                            </div>
+                            <p className="text-gray-600 mb-6">
+                                Are you sure you want to cancel this session? This
+                                action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setShowCancelModal(false)}
+                                    className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">
+                                    Keep Session
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    disabled={isSubmitting}
+                                    className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium disabled:opacity-50">
+                                    {isSubmitting ? 'Cancelling...' : 'Cancel'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
-                {/* Payment Info */}
-                <section className="bg-white rounded-2xl p-4 shadow-sm">
-                    <h3 className="font-semibold text-gray-900 mb-3">
-                        Payment Details
-                    </h3>
-                    <div className="space-y-2">
-                        <div className="flex justify-between font-semibold text-gray-900">
-                            <span>Total</span>
-                            <span className="text-primary">
-                                {formatCurrency(session.price)}
-                            </span>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Actions */}
-                <div className="space-y-3">
-                    {session.can_join && (
-                        <button
-                            onClick={handleJoin}
-                            className="w-full py-4 bg-primary text-white rounded-2xl font-medium flex items-center justify-center gap-2">
-                            <FiVideo className="w-5 h-5" />
-                            Join Session
-                        </button>
-                    )}
-
-                    {session.status === 'completed' &&
-                        !session.review && (
-                            <button
-                                onClick={() => setShowReviewModal(true)}
-                                className="w-full py-4 bg-yellow-500 text-white rounded-2xl font-medium flex items-center justify-center gap-2">
-                                <FiStar className="w-5 h-5" />
-                                Leave a Review
-                            </button>
-                        )}
-
-                    {session.can_cancel && (
-                        <button
-                            onClick={() => setShowCancelModal(true)}
-                            className="w-full py-3 bg-red-50 text-red-600 rounded-2xl font-medium">
-                            Cancel Session
-                        </button>
-                    )}
-
-                    <button
-                        onClick={() =>
-                            router.push(`/messages/${session.provider?.id}`)
-                        }
-                        className="w-full py-3 bg-gray-100 text-gray-700 rounded-2xl font-medium flex items-center justify-center gap-2">
-                        <FiMessageSquare className="w-5 h-5" />
-                        Message Provider
-                    </button>
-                </div>
-            </main>
-
-            {/* Cancel Modal */}
-            {showCancelModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                Cancel Session
-                            </h3>
-                            <button
-                                onClick={() => setShowCancelModal(false)}
-                                className="p-2 hover:bg-gray-100 rounded-full">
-                                <FiX className="w-5 h-5" />
-                            </button>
-                        </div>
-                        <p className="text-gray-600 mb-6">
-                            Are you sure you want to cancel this session? This
-                            action cannot be undone.
-                        </p>
-                        <div className="flex gap-3">
-                            <button
-                                onClick={() => setShowCancelModal(false)}
-                                className="flex-1 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium">
-                                Keep Session
-                            </button>
-                            <button
-                                onClick={handleCancel}
-                                disabled={isSubmitting}
-                                className="flex-1 py-3 bg-red-500 text-white rounded-xl font-medium disabled:opacity-50">
-                                {isSubmitting ? 'Cancelling...' : 'Cancel'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Review Modal */}
-            {showReviewModal && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-                    <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-900">
-                                Leave a Review
-                            </h3>
-                            <button
-                                onClick={() => setShowReviewModal(false)}
-                                className="p-2 hover:bg-gray-100 rounded-full">
-                                <FiX className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        <div className="mb-4">
-                            <p className="text-sm text-gray-600 mb-2">Rating</p>
-                            <div className="flex gap-2">
-                                {[1, 2, 3, 4, 5].map(star => (
-                                    <button
-                                        key={star}
-                                        onClick={() => setRating(star)}
-                                        className="p-1">
-                                        <FiStar
-                                            className={cn(
-                                                'w-8 h-8 transition-colors',
-                                                star <= rating
-                                                    ? 'fill-yellow-400 text-yellow-400'
-                                                    : 'text-gray-300',
-                                            )}
-                                        />
-                                    </button>
-                                ))}
+                {/* Review Modal */}
+                {showReviewModal && (
+                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+                        <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-lg font-semibold text-gray-900">
+                                    Leave a Review
+                                </h3>
+                                <button
+                                    onClick={() => setShowReviewModal(false)}
+                                    className="p-2 hover:bg-gray-100 rounded-full">
+                                    <FiX className="w-5 h-5" />
+                                </button>
                             </div>
-                        </div>
 
-                        <div className="mb-6">
-                            <p className="text-sm text-gray-600 mb-2">
-                                Your Review (optional)
-                            </p>
-                            <textarea
-                                value={review}
-                                onChange={e => setReview(e.target.value)}
-                                placeholder="Share your experience..."
-                                rows={4}
-                                className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                            />
-                        </div>
+                            <div className="mb-4">
+                                <p className="text-sm text-gray-600 mb-2">Rating</p>
+                                <div className="flex gap-2">
+                                    {[1, 2, 3, 4, 5].map(star => (
+                                        <button
+                                            key={star}
+                                            onClick={() => setRating(star)}
+                                            className="p-1">
+                                            <FiStar
+                                                className={cn(
+                                                    'w-8 h-8 transition-colors',
+                                                    star <= rating
+                                                        ? 'fill-yellow-400 text-yellow-400'
+                                                        : 'text-gray-300',
+                                                )}
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
 
-                        <button
-                            onClick={handleSubmitReview}
-                            disabled={rating === 0 || isSubmitting}
-                            className="w-full py-3 bg-primary text-white rounded-xl font-medium disabled:opacity-50">
-                            {isSubmitting ? 'Submitting...' : 'Submit Review'}
-                        </button>
+                            <div className="mb-6">
+                                <p className="text-sm text-gray-600 mb-2">
+                                    Your Review (optional)
+                                </p>
+                                <textarea
+                                    value={review}
+                                    onChange={e => setReview(e.target.value)}
+                                    placeholder="Share your experience..."
+                                    rows={4}
+                                    className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                                />
+                            </div>
+
+                            <button
+                                onClick={handleSubmitReview}
+                                disabled={rating === 0 || isSubmitting}
+                                className="w-full py-3 bg-primary text-white rounded-xl font-medium disabled:opacity-50">
+                                {isSubmitting ? 'Submitting...' : 'Submit Review'}
+                            </button>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )}
+            </div>
+        </VideoProvider>
     )
 }
