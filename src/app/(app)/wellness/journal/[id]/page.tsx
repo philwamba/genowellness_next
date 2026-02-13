@@ -37,9 +37,16 @@ export default function JournalEntryDetailPage() {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [isEditing, setIsEditing] = useState(isEditMode)
 
+    const [hasFetchedEntries, setHasFetchedEntries] = useState(false)
+
     useEffect(() => {
-        if (isValidId && journalEntries.length === 0) {
-            fetchJournalEntries()
+        if (!isValidId) return
+        if (journalEntries.length === 0) {
+            Promise.resolve(fetchJournalEntries()).finally(() =>
+                setHasFetchedEntries(true),
+            )
+        } else {
+            setHasFetchedEntries(true)
         }
     }, [isValidId, journalEntries.length, fetchJournalEntries])
 
@@ -65,7 +72,7 @@ export default function JournalEntryDetailPage() {
         fetchJournalEntries()
     }, [fetchJournalEntries])
 
-    if (!isValidId || (!entry && !isJournalLoading)) {
+    if (!isValidId || (!entry && hasFetchedEntries && !isJournalLoading)) {
         return (
             <div className="min-h-screen bg-gray-50 pb-24">
                 <AppHeader

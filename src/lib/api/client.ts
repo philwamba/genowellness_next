@@ -3,6 +3,7 @@ import type {
     ProviderProfile,
     Booking,
     TimeSlot,
+    User,
 } from '@/types'
 
 interface PaginationMeta {
@@ -86,6 +87,9 @@ class ApiClient {
         })
 
         if (!response.ok) {
+            if (response.status === 401) {
+                throw new AuthenticationError()
+            }
             const error = await response.json().catch(() => ({}))
             throw new ApiError(
                 error.message || 'An error occurred',
@@ -139,6 +143,13 @@ export class ApiError extends Error {
     }
 }
 
+export class AuthenticationError extends Error {
+    constructor(message: string = 'Unauthenticated') {
+        super(message)
+        this.name = 'AuthenticationError'
+    }
+}
+
 export const api = new ApiClient(API_BASE_URL)
 
 // Auth API
@@ -180,14 +191,7 @@ export const authApi = {
     getUser: () => api.get<{ user: unknown }>('/auth/user'),
 
     updateProfile: (
-        data: Partial<{
-            name: string
-            phone_number: string
-            date_of_birth: string
-            gender: string
-            address: string
-            avatar_url: string
-        }>,
+        data: Partial<User & ProviderProfile>,
     ) => api.put<{ message: string; user: unknown }>('/auth/user', data),
 
     forgotPassword: (email: string) =>

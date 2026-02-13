@@ -32,10 +32,10 @@ export function PointsDisplay({
     // Assuming each level requires 100 points
     const pointsPerLevel = 100
     const pointsEarnedInLevel = Math.max(0, pointsPerLevel - points_to_next_level)
-    const progressToNextLevel =
-        points_to_next_level > 0
+    const rawProgress = points_to_next_level > 0
             ? (pointsEarnedInLevel / pointsPerLevel) * 100
             : 100
+    const progressToNextLevel = Math.min(100, Math.max(0, rawProgress))
 
     if (variant === 'compact') {
         return (

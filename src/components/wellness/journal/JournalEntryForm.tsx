@@ -40,6 +40,11 @@ export function JournalEntryForm({
     const [tags, setTags] = useState<string[]>(initialData?.tags || [])
     const [tagInput, setTagInput] = useState('')
 
+    // Safety check for edit mode
+    if (isEditing && !entryId) {
+        console.error('JournalEntryForm: isEditing is true but no entryId provided')
+    }
+
     const {
         register,
         handleSubmit,

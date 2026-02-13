@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { User } from '@/types'
-import { api, authApi } from '../api/client'
+import { User, ProviderProfile } from '@/types'
+import { api, authApi, AuthenticationError } from '../api/client'
 import {
     signInWithEmail,
     createAccountWithEmail,
@@ -37,13 +37,7 @@ interface AuthState {
     loginWithGoogle: () => Promise<void>
     logout: () => Promise<void>
     refreshUser: () => Promise<void>
-    updateProfile: (updates: Partial<{
-        name: string
-        phone_number: string
-        address: string
-        date_of_birth: string
-        gender: string
-    }>) => Promise<void>
+    updateProfile: (updates: Partial<User & ProviderProfile>) => Promise<void>
     initializeAuth: () => (() => void) | undefined
 }
 
@@ -170,7 +164,9 @@ export const useAuthStore = create<AuthState>()(
                     set({ user: response.user as User, isAuthenticated: true })
                 } catch (error) {
                     console.error('Failed to fetch user:', error)
-                    get().logout()
+                    if (error instanceof AuthenticationError) {
+                         get().logout()
+                    }
                 }
             },
 
