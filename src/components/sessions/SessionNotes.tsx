@@ -27,6 +27,9 @@ export function SessionNotes({ sessionId, isOpen, onClose }: SessionNotesProps) 
             if (note) {
                 localStorage.setItem(`session_note_${sessionId}`, note)
                 setLastSaved(new Date())
+            } else {
+                localStorage.removeItem(`session_note_${sessionId}`)
+                setLastSaved(null)
             }
         }, 2000)
 
@@ -43,6 +46,8 @@ export function SessionNotes({ sessionId, isOpen, onClose }: SessionNotesProps) 
                     <h3 className="font-semibold text-gray-900">Session Notes</h3>
                 </div>
                 <button
+                    type="button"
+                    aria-label="Close session notes"
                     onClick={onClose}
                     className="p-1 hover:bg-gray-100 rounded-full transition-colors"
                 >

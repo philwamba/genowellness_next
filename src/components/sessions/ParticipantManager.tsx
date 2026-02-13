@@ -73,6 +73,7 @@ export function ParticipantManager({ participants, onChange, maxParticipants = 1
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder="Enter participant email"
+                        aria-label="Participant email address"
                         className="w-full pl-9 pr-4 py-2 rounded-lg border border-gray-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all"
                     />
                 </div>
@@ -111,6 +112,7 @@ export function ParticipantManager({ participants, onChange, maxParticipants = 1
                                     type="button"
                                     onClick={() => handleRemove(participant.id)}
                                     className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                    aria-label={`Remove ${participant.email}`}
                                 >
                                     <X className="w-4 h-4" />
                                 </button>
