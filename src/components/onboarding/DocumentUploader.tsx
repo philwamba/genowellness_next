@@ -28,21 +28,20 @@ export function DocumentUploader({
     const [isUploading, setIsUploading] = useState(false)
     const [uploadError, setUploadError] = useState<string | null>(null)
 
-    const handleFileSelect = async (file: File) => {
+    const handleFileSelect = (file: File | null) => {
         if (!file) return
         
         setIsUploading(true)
         setUploadError(null)
 
-        try {
-            await onUpload(file)
-            // consumer should handle status update
-        } catch (err) {
-            setUploadError('Failed to upload document. Please try again.')
-            console.error(err)
-        } finally {
-            setIsUploading(false)
-        }
+        onUpload(file)
+            .catch((err) => {
+                setUploadError('Failed to upload document. Please try again.')
+                console.error(err)
+            })
+            .finally(() => {
+                setIsUploading(false)
+            })
     }
 
     const getStatusBadge = () => {

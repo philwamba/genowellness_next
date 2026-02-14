@@ -8,15 +8,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { providerDashboardApi } from '@/lib/api/client'
 import { useAuthStore } from '@/lib/stores/auth-store'
-
-type AvailabilitySlot = {
-    start: string
-    end: string
-}
-
-type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
-
-type WeeklySchedule = Record<WeekDay, AvailabilitySlot[]>
+import { WeeklySchedule, AvailabilitySlot, WeekDay, TimeSlot } from '@/types'
 
 const DAYS: { id: WeekDay; label: string }[] = [
     { id: 'monday', label: 'Monday' },
@@ -58,8 +50,8 @@ export default function AvailabilityPage() {
                     sunday: [],
                 }
 
-                time_slots.forEach((slot: any) => {
-                    const day = slot.day_of_week.toLowerCase() as WeekDay
+                time_slots.forEach((slot: TimeSlot) => {
+                    const day = slot.day_name.toLowerCase() as WeekDay
                     if (newSchedule[day]) {
                         newSchedule[day].push({
                             start: slot.start_time.substring(0, 5), // HH:MM

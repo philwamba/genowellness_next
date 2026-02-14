@@ -18,17 +18,14 @@ import {
     FiTrendingUp,
 } from 'react-icons/fi'
 
+import { ProviderDashboardStats, Session } from '@/types'
+
 export default function ProviderDashboardPage() {
     const router = useRouter()
     const { user } = useAuthStore()
     const profile = user?.provider_profile
-    const [stats, setStats] = useState({
-        total_sessions: 0,
-        total_earnings: 0,
-        average_rating: 0,
-        total_clients: 0,
-    })
-    const [upcomingSessions, setUpcomingSessions] = useState<any[]>([])
+    const [stats, setStats] = useState<ProviderDashboardStats | null>(null)
+    const [upcomingSessions, setUpcomingSessions] = useState<Session[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -65,7 +62,7 @@ export default function ProviderDashboardPage() {
                             <span className="text-sm font-medium">Sessions</span>
                         </div>
                         <p className="text-2xl font-bold text-gray-900">
-                            {isLoading ? '-' : stats.total_sessions}
+                            {isLoading ? '-' : stats?.total_sessions || 0}
                         </p>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm">
@@ -74,7 +71,7 @@ export default function ProviderDashboardPage() {
                             <span className="text-sm font-medium">Earnings</span>
                         </div>
                         <p className="text-2xl font-bold text-gray-900">
-                            {isLoading ? '-' : formatCurrency(stats.total_earnings)}
+                            {isLoading ? '-' : formatCurrency(stats?.total_earnings || 0)}
                         </p>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm">
@@ -84,10 +81,10 @@ export default function ProviderDashboardPage() {
                         </div>
                         <div className="flex items-end gap-2">
                             <p className="text-2xl font-bold text-gray-900">
-                                {isLoading ? '-' : stats.average_rating}
+                                {isLoading ? '-' : stats?.average_rating || 0}
                             </p>
                             <span className="text-xs text-gray-500 mb-1">
-                                ({isLoading ? '-' : ((stats as any).reviews || 0)} reviews)
+                                ({isLoading ? '-' : stats?.total_reviews || 0} reviews)
                             </span>
                         </div>
                     </div>

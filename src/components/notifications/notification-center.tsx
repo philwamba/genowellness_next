@@ -6,6 +6,7 @@ import { Bell, Check, Trash2 } from 'lucide-react'
 import { useNotifications } from '@/lib/hooks/use-notifications'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
+import { Notification } from '@/types'
 
 export function NotificationCenter() {
     const {
@@ -59,7 +60,7 @@ export function NotificationCenter() {
                                 No notifications
                             </div>
                         ) : (
-                            notifications.map((notification) => (
+                            notifications.map((notification: Notification) => (
                                 <Menu.Item key={notification.id}>
                                     {({ active }) => (
                                         <div
@@ -75,9 +76,9 @@ export function NotificationCenter() {
                                                             ? 'font-medium text-gray-900'
                                                             : 'text-gray-600'
                                                     )}>
-                                                    {notification.data?.message ||
-                                                        notification.data?.body ||
-                                                        'New Notification'}
+                                                    {typeof notification.data === 'object' && notification.data !== null
+                                                        ? ((notification.data as any).message || (notification.data as any).body || 'New Notification')
+                                                        : 'New Notification'}
                                                 </div>
                                                 <div className="ml-2 flex flex-col items-end space-y-1">
                                                      <p className="text-xs text-gray-400 whitespace-nowrap">

@@ -1,13 +1,13 @@
 import useSWR from 'swr'
 import api, { notificationsApi } from '@/lib/api/client'
-import { Notification } from '@/types'
+import { Notification, PaginatedResponse } from '@/types'
 
 export function useNotifications() {
     const { data, error, mutate, isLoading } = useSWR<{
         notifications: Notification[]
-        meta: any
+        meta: PaginatedResponse<Notification>['meta']
     }>('/notifications', async (url: string) => {
-        const res = await api.get<{ notifications: Notification[]; meta: any }>(
+        const res = await api.get<{ notifications: Notification[]; meta: PaginatedResponse<Notification>['meta'] }>(
             url,
         )
         return res

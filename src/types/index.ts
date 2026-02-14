@@ -119,6 +119,22 @@ export interface TimeSlot {
     is_available: boolean
 }
 
+export type AvailabilitySlot = {
+    start: string
+    end: string
+}
+
+export type WeekDay =
+    | 'monday'
+    | 'tuesday'
+    | 'wednesday'
+    | 'thursday'
+    | 'friday'
+    | 'saturday'
+    | 'sunday'
+
+export type WeeklySchedule = Record<WeekDay, AvailabilitySlot[]>
+
 // Booking Types
 export interface Booking {
     id: number
@@ -405,4 +421,29 @@ export interface WalletTransaction {
     created_at: string
     updated_at: string
     wallet?: Wallet
+}
+
+// Provider Dashboard & Analytics Types
+export interface ProviderDashboardStats {
+    total_earnings: number
+    total_sessions: number
+    total_reviews: number
+    total_clients: number
+    average_rating: number
+    upcoming_sessions_count: number
+    active_bookings_count: number
+}
+
+export interface AnalyticsOverview {
+    total_earnings: number
+    total_sessions: number
+    total_clients: number
+    average_rating: number
+}
+
+export interface ChartDataItem {
+    date: string
+    name: string
+    amount?: number
+    count?: number
 }

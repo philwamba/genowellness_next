@@ -12,8 +12,8 @@ import { toast } from 'sonner'
 
 declare global {
     interface Window {
-        Pusher: any
-        Echo: any
+        Pusher: typeof Pusher
+        Echo: Echo<any>
     }
 }
 
@@ -55,7 +55,7 @@ export function NotificationsProvider({
 
         // 2. Listen for Notifications
         console.log(`Listening to App.Models.User.${user.id}`)
-        echoInstance.private(`App.Models.User.${user.id}`).notification((notification: any) => {
+        echoInstance.private(`App.Models.User.${user.id}`).notification((notification: { title: string; body?: string; message?: string }) => {
             console.log('New notification:', notification)
             mutate()
             mutateUnreadCount()
@@ -91,7 +91,7 @@ export function NotificationsProvider({
         requestPermission()
 
         // 4. Listen for foreground messages
-        let unsubscribe: any
+        let unsubscribe: (() => void) | undefined
         if (messaging) {
             unsubscribe = onMessage(messaging, (payload) => {
                 console.log('Foreground message:', payload)

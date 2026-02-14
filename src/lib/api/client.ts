@@ -8,6 +8,10 @@ import type {
     Wallet,
     WalletTransaction,
     Session,
+    ProviderDashboardStats,
+    AnalyticsOverview,
+    ChartDataItem,
+    WeeklySchedule,
 } from '@/types'
 
 interface PaginationMeta {
@@ -577,11 +581,11 @@ export const paymentsApi = {
 
 // Provider Dashboard API
 export const providerDashboardApi = {
-    getDashboard: () => api.get<{ stats: any; upcoming_sessions: Session[] }>('/provider/dashboard'),
+    getDashboard: () => api.get<{ stats: ProviderDashboardStats; upcoming_sessions: Session[] }>('/provider/dashboard'),
 
     // Availability
     getAvailability: () => api.get<{ time_slots: TimeSlot[]; blocked_dates: string[]; timezone: string }>('/provider/availability'),
-    updateAvailability: (schedule: any) => api.put('/provider/availability', { schedule }),
+    updateAvailability: (schedule: WeeklySchedule) => api.put('/provider/availability', { schedule }),
     getBlockedDates: () => api.get<{ data: { id: number; blocked_date: string; reason: string }[] }>('/provider/blocked-dates'),
     blockDate: (date: string, reason?: string) => api.post('/provider/blocked-dates', { date, reason }),
     unblockDate: (id: number) => api.delete(`/provider/blocked-dates/${id}`),
@@ -596,9 +600,9 @@ export const providerDashboardApi = {
     },
 
     // Analytics
-    getAnalyticsOverview: () => api.get<{ overview: any }>('/provider/analytics'),
-    getSessionsAnalytics: () => api.get<{ data: any[] }>('/provider/analytics/sessions'),
-    getRevenueAnalytics: () => api.get<{ data: any[] }>('/provider/analytics/revenue'),
+    getAnalyticsOverview: () => api.get<{ overview: AnalyticsOverview }>('/provider/analytics'),
+    getSessionsAnalytics: () => api.get<{ data: ChartDataItem[] }>('/provider/analytics/sessions'),
+    getRevenueAnalytics: () => api.get<{ data: ChartDataItem[] }>('/provider/analytics/revenue'),
 }
 
 export default api

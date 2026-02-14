@@ -20,12 +20,14 @@ import { FiDollarSign, FiCalendar, FiUsers, FiTrendingUp } from 'react-icons/fi'
 
 
 
+import { AnalyticsOverview, ChartDataItem } from '@/types'
+
 export default function AnalyticsPage() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(true)
-    const [stats, setStats] = useState<any[]>([])
-    const [earningsData, setEarningsData] = useState<any[]>([])
-    const [sessionsData, setSessionsData] = useState<any[]>([])
+    const [stats, setStats] = useState<any[]>([]) // Keep any[] for now as it's a mixed array for UI
+    const [earningsData, setEarningsData] = useState<ChartDataItem[]>([])
+    const [sessionsData, setSessionsData] = useState<ChartDataItem[]>([])
 
     useEffect(() => {
         const loadAnalytics = async () => {
@@ -77,13 +79,15 @@ export default function AnalyticsPage() {
                 ])
 
                 // Transform revenue data for chart
-                setEarningsData(revenue.data.map((item: any) => ({
+                setEarningsData(revenue.data.map((item) => ({
+                    date: item.date,
                     name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
                     amount: item.amount
                 })))
 
                 // Transform sessions data for chart
-                setSessionsData(sessions.data.map((item: any) => ({
+                setSessionsData(sessions.data.map((item) => ({
+                    date: item.date,
                     name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
                     count: item.count
                 })))
@@ -185,8 +189,8 @@ export default function AnalyticsPage() {
                                     />
                                     <Tooltip
                                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                        formatter={(value: any) => [`$${value}`, 'Earnings']}
-                                        contentStyle={{
+                                        formatter={(value?: number) => [`$${value || 0}`, 'Earnings']}
+                        contentStyle={{
                                             borderRadius: '12px',
                                             border: 'none',
                                             boxShadow:
