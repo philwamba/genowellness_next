@@ -26,9 +26,20 @@ import { useAuthStore } from '@/lib/stores/auth-store'
 
 export default function AnalyticsPage() {
     const router = useRouter()
+
+    interface StatItem {
+        label: string
+        value: string
+        isPositive: boolean
+        icon: React.ElementType
+        color: string
+        bg: string
+    }
+
     const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(true)
-    const [stats, setStats] = useState<any[]>([]) // Keep any[] for now as it's a mixed array for UI
+    const [error, setError] = useState<string | null>(null)
+    const [stats, setStats] = useState<StatItem[]>([])
     const [earningsData, setEarningsData] = useState<ChartDataItem[]>([])
     const [sessionsData, setSessionsData] = useState<ChartDataItem[]>([])
 
@@ -99,6 +110,7 @@ export default function AnalyticsPage() {
 
             } catch (error) {
                 console.error('Failed to load analytics:', error)
+                setError('Failed to load analytics data.')
             } finally {
                 setIsLoading(false)
             }
@@ -119,34 +131,43 @@ export default function AnalyticsPage() {
 
             <main className="px-4 py-6 space-y-6">
                 {/* Key Metrics */}
+                {error && (
+                    <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center">
+                        <p>{error}</p>
+                    </div>
+                )}
+                
                 <div className="grid grid-cols-2 gap-4">
-                    {stats.map((stat, index) => (
-                        <div
-                            key={index}
-                            className="bg-white p-4 rounded-2xl shadow-sm"
-                        >
-                            <div className="flex items-center justify-between mb-3">
-                                <div
-                                    className={`w-10 h-10 ${stat.bg} rounded-full flex items-center justify-center`}
-                                >
-                                    <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                    {isLoading && stats.length === 0 ? (
+                        [1, 2, 3, 4].map((i) => (
+                            <div key={i} className="bg-white p-4 rounded-2xl shadow-sm animate-pulse">
+                                <div className="flex justify-between mb-3">
+                                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
                                 </div>
-                                {/* <span
-                                    className={`text-xs font-medium ${
-                                        stat.isPositive
-                                            ? 'text-green-600'
-                                            : 'text-red-500'
-                                    }`}
-                                >
-                                    {stat.change}
-                                </span> */}
+                                <div className="h-4 bg-gray-200 rounded w-1/2 mb-2" />
+                                <div className="h-8 bg-gray-200 rounded w-2/3" />
                             </div>
-                            <p className="text-sm text-gray-500">{stat.label}</p>
-                            <p className="text-xl font-bold text-gray-900">
-                                {isLoading ? '-' : stat.value}
-                            </p>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        stats.map((stat, index) => (
+                            <div
+                                key={index}
+                                className="bg-white p-4 rounded-2xl shadow-sm"
+                            >
+                                <div className="flex items-center justify-between mb-3">
+                                    <div
+                                        className={`w-10 h-10 ${stat.bg} rounded-full flex items-center justify-center`}
+                                    >
+                                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
+                                    </div>
+                                </div>
+                                <p className="text-sm text-gray-500">{stat.label}</p>
+                                <p className="text-xl font-bold text-gray-900">
+                                    {stat.value}
+                                </p>
+                            </div>
+                        ))
+                    )}
                 </div>
 
                 {/* Earnings Chart */}
@@ -195,9 +216,8 @@ export default function AnalyticsPage() {
                                         tickFormatter={(value) => `$${value}`}
                                     />
                                     <Tooltip
-                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                         formatter={(value?: number) => [`$${value || 0}`, 'Earnings']}
-                        contentStyle={{
+                                        contentStyle={{
                                             borderRadius: '12px',
                                             border: 'none',
                                             boxShadow:
