@@ -41,14 +41,15 @@ export default function JournalEntryDetailPage() {
 
     useEffect(() => {
         if (!isValidId) return
-        if (journalEntries.length === 0 && !isJournalLoading) {
+        
+        if (!hasFetchedEntries && journalEntries.length === 0 && !isJournalLoading) {
             Promise.resolve(fetchJournalEntries()).finally(() =>
                 setHasFetchedEntries(true),
             )
         } else if (journalEntries.length > 0) {
             setHasFetchedEntries(true)
         }
-    }, [isValidId, journalEntries.length, fetchJournalEntries, isJournalLoading])
+    }, [isValidId, journalEntries.length, fetchJournalEntries, isJournalLoading, hasFetchedEntries])
 
     useEffect(() => {
         if (isValidId) {

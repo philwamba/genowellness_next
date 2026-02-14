@@ -429,6 +429,7 @@ export interface ProviderDashboardStats {
     total_sessions: number
     total_reviews: number
     total_clients: number
+    reviews?: number
     average_rating: number
     upcoming_sessions_count: number
     active_bookings_count: number

@@ -24,6 +24,7 @@ export default function AvailabilityPage() {
     const router = useRouter()
     const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(false)
+    const [isInitialLoading, setIsInitialLoading] = useState(true)
     const [schedule, setSchedule] = useState<WeeklySchedule>({
         monday: [],
         tuesday: [],
@@ -51,12 +52,17 @@ export default function AvailabilityPage() {
                 }
 
                 time_slots.forEach((slot: TimeSlot) => {
-                    const day = slot.day_name.toLowerCase() as WeekDay
+                    // Try to use day_name first, then fallback to logic if needed (though TimeSlot has day_name)
+                    const rawDay = slot.day_name || ''
+                    const day = rawDay.toLowerCase().trim() as WeekDay
+                    
                     if (newSchedule[day]) {
                         newSchedule[day].push({
                             start: slot.start_time.substring(0, 5), // HH:MM
                             end: slot.end_time.substring(0, 5)
                         })
+                    } else {
+                        console.warn(`Encountered unknown day "${slot.day_name}" (id: ${slot.id}) in availability slots.`)
                     }
                 })
 
@@ -64,11 +70,15 @@ export default function AvailabilityPage() {
             } catch (error) {
                 console.error('Failed to load availability:', error)
                 toast.error('Failed to load availability')
+            } finally {
+                setIsInitialLoading(false)
             }
         }
         
         if (user) {
             loadAvailability()
+        } else {
+            setIsInitialLoading(false)
         }
     }, [user])
 

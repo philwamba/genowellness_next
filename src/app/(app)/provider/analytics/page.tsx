@@ -22,8 +22,11 @@ import { FiDollarSign, FiCalendar, FiUsers, FiTrendingUp } from 'react-icons/fi'
 
 import { AnalyticsOverview, ChartDataItem } from '@/types'
 
+import { useAuthStore } from '@/lib/stores/auth-store'
+
 export default function AnalyticsPage() {
     const router = useRouter()
+    const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(true)
     const [stats, setStats] = useState<any[]>([]) // Keep any[] for now as it's a mixed array for UI
     const [earningsData, setEarningsData] = useState<ChartDataItem[]>([])
@@ -31,6 +34,8 @@ export default function AnalyticsPage() {
 
     useEffect(() => {
         const loadAnalytics = async () => {
+             if (!user) return
+
             try {
                 const [overview, sessions, revenue] = await Promise.all([
                     providerDashboardApi.getAnalyticsOverview(),
@@ -81,14 +86,14 @@ export default function AnalyticsPage() {
                 // Transform revenue data for chart
                 setEarningsData(revenue.data.map((item) => ({
                     date: item.date,
-                    name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                    name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     amount: item.amount
                 })))
 
                 // Transform sessions data for chart
                 setSessionsData(sessions.data.map((item) => ({
                     date: item.date,
-                    name: new Date(item.date).toLocaleDateString('en-US', { weekday: 'short' }),
+                    name: new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
                     count: item.count
                 })))
 
@@ -99,8 +104,10 @@ export default function AnalyticsPage() {
             }
         }
 
-        loadAnalytics()
-    }, [])
+        if (user) {
+            loadAnalytics()
+        }
+    }, [user])
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">

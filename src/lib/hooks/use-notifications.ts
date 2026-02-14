@@ -6,36 +6,43 @@ export function useNotifications() {
     const { data, error, mutate, isLoading } = useSWR<{
         notifications: Notification[]
         meta: PaginatedResponse<Notification>['meta']
-    }>('/notifications', async (url: string) => {
-        const res = await api.get<{ notifications: Notification[]; meta: PaginatedResponse<Notification>['meta'] }>(
-            url,
-        )
-        return res
-    })
+    }>('/notifications', () => notificationsApi.list().then(res => ({
+        notifications: res.notifications,
+        meta: res.meta
+    })))
 
     const { data: unreadCountData, mutate: mutateUnreadCount } = useSWR<{
         count: number
-    }>('/notifications/unread-count', async (url: string) => {
-        const res = await api.get<{ count: number }>(url)
-        return res
-    })
+    }>('/notifications/unread-count', () => notificationsApi.unreadCount().then(res => res))
 
     const markAsRead = async (id: number) => {
-        await notificationsApi.markAsRead(id)
-        mutate()
-        mutateUnreadCount()
+        try {
+            await notificationsApi.markAsRead(id)
+            mutate()
+            mutateUnreadCount()
+        } catch (error) {
+            throw error
+        }
     }
 
     const markAllAsRead = async () => {
-        await notificationsApi.markAllAsRead()
-        mutate()
-        mutateUnreadCount()
+        try {
+            await notificationsApi.markAllAsRead()
+            mutate()
+            mutateUnreadCount()
+        } catch (error) {
+            throw error
+        }
     }
 
     const remove = async (id: number) => {
-        await notificationsApi.delete(id)
-        mutate()
-        mutateUnreadCount()
+        try {
+            await notificationsApi.delete(id)
+            mutate()
+            mutateUnreadCount()
+        } catch (error) {
+            throw error
+        }
     }
 
     return {

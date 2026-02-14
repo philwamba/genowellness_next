@@ -137,27 +137,41 @@ export default function SessionDetailPage() {
     const [token, setToken] = useState<string>('')
 
     useEffect(() => {
+        let abortController = new AbortController()
+
         if (activeVideo && session?.id) {
             const fetchToken = async () => {
                 try {
                     // Replace with actual API endpoint
-                    const res = await fetch(`/api/video/token?sessionId=${session.id}`)
-                    if (res.ok) {
-                        const data = await res.json()
-                        setToken(data.token)
+                    const res = await fetch(`/api/video/token?sessionId=${session.id}`, {
+                        signal: abortController.signal
+                    })
+                    
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch token: ${res.statusText}`)
                     }
+                    
+                    const data = await res.json()
+                    setToken(data.token)
                 } catch (error) {
-                    console.error('Failed to fetch video token:', error)
+                    if (error instanceof Error && error.name !== 'AbortError') {
+                        console.error('Failed to fetch video token:', error)
+                        // Optionally set error state here
+                    }
                 }
             }
             fetchToken()
+        } else {
+            setToken('')
+        }
+
+        return () => {
+            abortController.abort()
+            setToken('')
         }
     }, [activeVideo, session?.id])
 
     // ... inside render ...
-    // Note: I need to handle the render part in a separate chunk effectively or carefully match
-    // actually, I can't put the useEffect inside the useMemo block obviously.
-    // I will split this into two edits for safety.
 
     if (isLoading) {
         return (

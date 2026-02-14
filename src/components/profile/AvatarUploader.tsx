@@ -16,7 +16,10 @@ export function AvatarUploader({ currentAvatarUrl, onUpload, className }: Avatar
     const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl || null)
     
     const handleFileSelect = async (file: File | null) => {
-        if (!file) return // Handle generic reset if needed
+        if (!file) {
+            setPreviewUrl(currentAvatarUrl || null)
+            return
+        }
 
         setIsUploading(true)
         

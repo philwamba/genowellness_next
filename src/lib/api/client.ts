@@ -12,6 +12,8 @@ import type {
     AnalyticsOverview,
     ChartDataItem,
     WeeklySchedule,
+    Notification,
+    PaginatedResponse,
 } from '@/types'
 
 interface PaginationMeta {
@@ -528,7 +530,7 @@ export const contentApi = {
 // Notifications API
 export const notificationsApi = {
     list: (params?: { per_page?: number; page?: number }) =>
-        api.get<{ notifications: unknown[]; meta: unknown }>(
+        api.get<{ notifications: Notification[]; meta: PaginatedResponse<Notification>['meta'] }>(
             '/notifications',
             params,
         ),

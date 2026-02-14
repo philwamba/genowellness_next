@@ -64,7 +64,7 @@ export default function ProviderProfilePage() {
                 experience_years: parseInt(formData.experience_years) || 0,
             })
             // Optionally refresh user profile in auth store if needed
-            // await refreshProfile() 
+            await refreshProfile() 
             toast.success('Profile updated successfully')
         } catch (error) {
             toast.error('Failed to update profile')

@@ -29,19 +29,32 @@ export default function ProviderDashboardPage() {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
+        let isMounted = true
         const loadDashboard = async () => {
             try {
                 const { stats, upcoming_sessions } = await providerDashboardApi.getDashboard()
                 setStats(stats)
                 setUpcomingSessions(upcoming_sessions)
             } catch (error) {
+                if (!isMounted) return
                 console.error('Failed to load dashboard:', error)
             } finally {
-                setIsLoading(false)
+                if (isMounted) {
+                    setIsLoading(false)
+                }
             }
         }
+
         if (user) {
             loadDashboard()
+        } else {
+             setStats(null)
+             setUpcomingSessions([])
+             setIsLoading(false)
+        }
+
+        return () => {
+            isMounted = false
         }
     }, [user])
 

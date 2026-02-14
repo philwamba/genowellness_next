@@ -34,11 +34,19 @@ export function NotificationsProvider({
     useEffect(() => {
         if (!user) return
 
+        const reverbKey = process.env.NEXT_PUBLIC_REVERB_APP_KEY
+        const reverbHost = process.env.NEXT_PUBLIC_REVERB_HOST
+        
+        if (!reverbKey || !reverbHost) {
+            console.warn('Reverb configuration missing, skipping Echo initialization')
+            return
+        }
+
         // 1. Initialize Laravel Echo
         const echoInstance = new Echo({
             broadcaster: 'reverb',
-            key: process.env.NEXT_PUBLIC_REVERB_APP_KEY,
-            wsHost: process.env.NEXT_PUBLIC_REVERB_HOST,
+            key: reverbKey,
+            wsHost: reverbHost,
             wsPort: parseInt(process.env.NEXT_PUBLIC_REVERB_PORT || '8080'),
             wssPort: parseInt(process.env.NEXT_PUBLIC_REVERB_PORT || '8080'),
             forceTLS: (process.env.NEXT_PUBLIC_REVERB_SCHEME ?? 'https') === 'https',
@@ -46,7 +54,7 @@ export function NotificationsProvider({
             authEndpoint: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/broadcasting/auth`,
             auth: {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`, // Assuming token is in localStorage or handled by axios interceptor if Echo uses axios
+                    Authorization: `Bearer ${localStorage.getItem('auth_token')}`, 
                 },
             },
         })

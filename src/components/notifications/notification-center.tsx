@@ -7,6 +7,8 @@ import { useNotifications } from '@/lib/hooks/use-notifications'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { Notification } from '@/types'
+import Link from 'next/link'
+import { toast } from 'sonner'
 
 export function NotificationCenter() {
     const {
@@ -72,7 +74,7 @@ export function NotificationCenter() {
                                                 <div
                                                     className={cn(
                                                         'flex-1 text-sm',
-                                                        !notification.read_at
+                                                        !notification.is_read
                                                             ? 'font-medium text-gray-900'
                                                             : 'text-gray-600'
                                                     )}>
@@ -90,13 +92,15 @@ export function NotificationCenter() {
                                                         )}
                                                     </p>
                                                     <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        {!notification.read_at && (
+                                                        {!notification.is_read && (
                                                             <button
-                                                                onClick={(e) => {
+                                                                onClick={async (e) => {
                                                                     e.preventDefault()
-                                                                    markAsRead(
-                                                                        notification.id
-                                                                    )
+                                                                    try {
+                                                                        await markAsRead(notification.id)
+                                                                    } catch (error) {
+                                                                        toast.error('Failed to mark as read')
+                                                                    }
                                                                 }}
                                                                 title="Mark as read"
                                                                 className="text-emerald-500 hover:text-emerald-700">
@@ -104,11 +108,13 @@ export function NotificationCenter() {
                                                             </button>
                                                         )}
                                                         <button
-                                                            onClick={(e) => {
+                                                            onClick={async (e) => {
                                                                 e.preventDefault()
-                                                                remove(
-                                                                    notification.id
-                                                                )
+                                                                try {
+                                                                    await remove(notification.id)
+                                                                } catch (error) {
+                                                                    toast.error('Failed to delete notification')
+                                                                }
                                                             }}
                                                             title="Delete"
                                                             className="text-red-400 hover:text-red-600">
@@ -124,11 +130,11 @@ export function NotificationCenter() {
                         )}
                     </div>
                     <div className="border-t border-gray-100 bg-gray-50 px-4 py-2 text-center">
-                        <a
+                        <Link
                             href="/notifications"
                             className="text-xs font-medium text-gray-500 hover:text-gray-700">
                             View all notifications
-                        </a>
+                        </Link>
                     </div>
                 </Menu.Items>
             </Transition>
