@@ -31,12 +31,6 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
                     streamRef.current = mediaStream
                     setStream(mediaStream)
                     setHasPermission(true)
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = mediaStream
-                    }
-                } else {
-                    // If unmounted during promise, stop immediately
-                    mediaStream.getTracks().forEach(track => track.stop())
                 }
             } catch (err) {
                 console.error("Error accessing media devices:", err)
@@ -55,6 +49,12 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
             }
         }
     }, [])
+
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            videoRef.current.srcObject = stream
+        }
+    }, [stream, hasPermission])
     
     const toggleAudio = () => {
         if (streamRef.current) {

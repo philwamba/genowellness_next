@@ -137,13 +137,26 @@ export default function SessionDetailPage() {
     const [token, setToken] = useState<string>('')
 
     useEffect(() => {
-        let abortController = new AbortController()
+        const abortController = new AbortController()
 
         if (activeVideo && session?.id) {
             const fetchToken = async () => {
+                const token = localStorage.getItem('token')
+                if (!token) {
+                    toast.error('Authentication required. Please log in again.')
+                    // Optionally redirect to login or show auth modal
+                    return
+                }
+
                 try {
-                    // Replace with actual API endpoint
-                    const res = await fetch(`/api/video/token?sessionId=${session.id}`, {
+                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+                    const res = await fetch(`${baseUrl}/video/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ sessionId: session.id }),
                         signal: abortController.signal
                     })
                     
@@ -156,7 +169,8 @@ export default function SessionDetailPage() {
                 } catch (error) {
                     if (error instanceof Error && error.name !== 'AbortError') {
                         console.error('Failed to fetch video token:', error)
-                        // Optionally set error state here
+                        toast.error('Failed to start video session. Please try again.')
+                        setActiveVideo(false)
                     }
                 }
             }

@@ -182,8 +182,13 @@ export default function Header() {
 
                         {/* Right side */}
                         <div className="flex items-center md:gap-4 gap-2.5">
-                            {/* CTA -> Google Form */}
-                            <div className="hidden md:flex">
+                            {/* Log In + CTA */}
+                            <div className="hidden md:flex items-center gap-3">
+                                <Link
+                                    href="/login"
+                                    className="rounded-2xl px-6 py-3.5 font-medium transition-all duration-300 border border-neutral-300 text-neutral-900 hover:bg-neutral-100">
+                                    Log In
+                                </Link>
                                 <Link
                                     href="https://forms.gle/Peq5jNjPiii38LLd9"
                                     target="_blank"
@@ -401,6 +406,14 @@ export default function Header() {
                             onClose={() => setMobileOpen(false)}>
                             Contact us
                         </MobileLink>
+
+                        {/* Log In */}
+                        <Link
+                            href="/login"
+                            onClick={() => setMobileOpen(false)}
+                            className="block text-center border border-neutral-300 text-neutral-900 hover:bg-neutral-100 rounded-2xl px-7.5 py-3.5 font-medium transition-all duration-300 mt-2">
+                            Log In
+                        </Link>
 
                         {/* CTA */}
                         <Link

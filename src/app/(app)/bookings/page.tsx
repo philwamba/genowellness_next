@@ -41,6 +41,7 @@ export default function BookingsPage() {
     const [activeTab, setActiveTab] = useState<TabType>('upcoming')
     const [bookings, setBookings] = useState<Booking[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
     const [showCancelModal, setShowCancelModal] = useState<string | null>(null)
     const [cancelReason, setCancelReason] = useState('')
     const [isCancelling, setIsCancelling] = useState(false)
@@ -246,7 +247,24 @@ export default function BookingsPage() {
                     </div>
                 )}
 
-                {!isLoading && bookings.length === 0 && (
+                {!isLoading && error && (
+                    <div className="text-center py-12">
+                        <div className="bg-red-50 text-red-600 p-4 rounded-xl inline-block mb-4">
+                            <FiX className="w-8 h-8" />
+                        </div>
+                        <p className="text-gray-900 font-medium mb-2">Something went wrong</p>
+                        <p className="text-gray-500 mb-6">{error}</p>
+                        <button
+                            onClick={fetchBookings}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700 font-medium transition-colors"
+                        >
+                            <FiRefreshCw className="w-4 h-4" />
+                            Try Again
+                        </button>
+                    </div>
+                )}
+
+                {!isLoading && !error && bookings.length === 0 && (
                     <div className="text-center py-12">
                         <FiCalendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                         <p className="text-gray-500 mb-4">

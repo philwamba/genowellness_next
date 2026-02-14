@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { AppHeader } from '@/components/layout/app-header'
-import { servicesApi, providersApi, contentApi } from '@/lib/api/client'
+import { servicesApi, providersApi, contentApi, searchApi } from '@/lib/api/client'
 import { Service, Provider, Article } from '@/types'
 import { formatCurrency, cn, getInitials } from '@/lib/utils'
 import { FiSearch, FiStar, FiChevronRight, FiX, FiClock } from 'react-icons/fi'
@@ -70,51 +70,29 @@ export default function SearchPage() {
         saveRecentSearch(searchQuery.trim())
 
         try {
-            // Search in parallel
-            const [servicesRes, providersRes, articlesRes] = await Promise.all([
-                servicesApi.list().catch(() => ({ services: [] })),
-                providersApi.list().catch(() => ({ providers: [] })),
-                contentApi.getArticles().catch(() => ({ articles: [] })),
-            ])
-
-            // Filter results client-side (in production, backend should handle this)
-            const searchLower = searchQuery.toLowerCase()
-
-            const filteredServices = (servicesRes.services as Service[]).filter(
-                (s) =>
-                    s.title.toLowerCase().includes(searchLower) ||
-                    s.subtitle?.toLowerCase().includes(searchLower) ||
-                    s.description?.toLowerCase().includes(searchLower),
-            )
-
-            const filteredProviders = (providersRes.providers as Provider[]).filter(
-                (p) =>
-                    p.name?.toLowerCase().includes(searchLower) ||
-                    p.title?.toLowerCase().includes(searchLower) ||
-                    p.bio?.toLowerCase().includes(searchLower) ||
-                    p.specializations?.some((s) =>
-                        s.toLowerCase().includes(searchLower),
-                    ),
-            )
-
-            const filteredArticles = (articlesRes.articles as Article[]).filter(
-                (a) =>
-                    a.title.toLowerCase().includes(searchLower) ||
-                    a.excerpt?.toLowerCase().includes(searchLower),
-            )
+            const { services, providers, articles } = await searchApi.query({
+                query: searchQuery.trim(),
+                category: category === 'all' ? undefined : category,
+                limit: 20
+            })
 
             setResults({
-                services: filteredServices,
-                providers: filteredProviders,
-                articles: filteredArticles,
+                services: services || [],
+                providers: providers || [],
+                articles: articles || [],
             })
         } catch (error) {
             console.error('Search failed:', error)
             toast.error('Search failed. Please try again.')
+            setResults({
+                services: [],
+                providers: [],
+                articles: [],
+            })
         } finally {
             setIsSearching(false)
         }
-    }, [saveRecentSearch])
+    }, [category, saveRecentSearch])
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault()

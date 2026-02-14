@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button'
 
 export default function ProviderProfilePage() {
     const router = useRouter()
-    const { user, updateProfile } = useAuthStore()
+    const { user, refreshUser } = useAuthStore()
     const profile = user?.provider_profile
     const [isLoading, setIsLoading] = useState(false)
 
@@ -64,7 +64,7 @@ export default function ProviderProfilePage() {
                 experience_years: parseInt(formData.experience_years) || 0,
             })
             // Optionally refresh user profile in auth store if needed
-            await refreshProfile() 
+            await refreshUser()
             toast.success('Profile updated successfully')
         } catch (error) {
             toast.error('Failed to update profile')

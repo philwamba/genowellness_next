@@ -607,4 +607,14 @@ export const providerDashboardApi = {
     getRevenueAnalytics: () => api.get<{ data: ChartDataItem[] }>('/provider/analytics/revenue'),
 }
 
+// Search API
+export const searchApi = {
+    query: (params: { query: string; category?: string; limit?: number }) =>
+        api.get<{
+            services: Service[]
+            providers: Provider[]
+            articles: Article[]
+        }>('/search', params),
+}
+
 export default api

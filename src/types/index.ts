@@ -317,7 +317,7 @@ export interface Notification {
     type: string
     title: string
     body: string | null
-    data: Record<string, unknown> | null
+    data: Record<string, any> | null
     action_url: string | null
     is_read: boolean
     read_at: string | null
