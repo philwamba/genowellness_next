@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState, Suspense, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiLock, FiArrowLeft, FiCheckCircle } from 'react-icons/fi'
@@ -17,17 +17,26 @@ function ResetPasswordContent() {
     const [passwordConfirmation, setPasswordConfirmation] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const successRedirectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+    useEffect(() => {
+        return () => {
+            if (successRedirectTimeoutRef.current) {
+                clearTimeout(successRedirectTimeoutRef.current)
+            }
+        }
+    }, [])
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         
-        if (password !== passwordConfirmation) {
-            toast.error('Passwords do not match')
+        if (!token || !email) {
+            toast.error('Invalid reset link')
             return
         }
 
-        if (!token || !email) {
-            toast.error('Invalid reset link')
+        if (password !== passwordConfirmation) {
+            toast.error('Passwords do not match')
             return
         }
 
@@ -41,7 +50,7 @@ function ResetPasswordContent() {
                 password_confirmation: passwordConfirmation,
             })
             setIsSuccess(true)
-            setTimeout(() => router.push('/login'), 3000)
+            successRedirectTimeoutRef.current = setTimeout(() => router.push('/login'), 3000)
         } catch (error: any) {
             console.error('Failed to reset password:', error)
             toast.error(error.message || 'Failed to reset password')
@@ -65,6 +74,12 @@ function ResetPasswordContent() {
                     </p>
                      <Link
                         href="/login"
+                        onClick={() => {
+                            if (successRedirectTimeoutRef.current) {
+                                clearTimeout(successRedirectTimeoutRef.current)
+                                successRedirectTimeoutRef.current = null
+                            }
+                        }}
                         className="inline-flex items-center gap-2 text-primary font-medium">
                         <FiArrowLeft className="w-4 h-4" />
                         Go to Sign In

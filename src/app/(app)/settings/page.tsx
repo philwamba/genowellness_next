@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/layout/app-header'
 import { 
     FiUser, 
@@ -22,8 +22,17 @@ export default function SettingsPage() {
     const [isLoading, setIsLoading] = useState(false)
 
     // Profile state
+    // Profile state
     const [name, setName] = useState(user?.name || '')
     const [phone, setPhone] = useState(user?.phone_number || '')
+
+    // Sync state with user data
+    useEffect(() => {
+        if (user) {
+            setName(user.name || '')
+            setPhone(user.phone_number || '')
+        }
+    }, [user])
 
     // Password state
     const [currentPassword, setCurrentPassword] = useState('')
@@ -71,16 +80,9 @@ export default function SettingsPage() {
      const handleDeleteAccount = async () => {
         if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return
         
-        setIsLoading(true)
-        try {
-             // Assuming delete endpoint exists or mock it
-             // await authApi.deleteAccount() 
-             toast.error('Account deletion not yet implemented on backend')
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to delete account')
-        } finally {
-            setIsLoading(false)
-        }
+        // TODO: Implement when backend endpoint is available
+        // await authApi.deleteAccount()
+        toast.error('Account deletion not yet implemented on backend')
     }
 
     const tabs = [
@@ -170,6 +172,7 @@ export default function SettingsPage() {
                                         type="password"
                                         value={currentPassword}
                                         onChange={e => setCurrentPassword(e.target.value)}
+                                        required
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     />
                                 </div>
@@ -181,6 +184,7 @@ export default function SettingsPage() {
                                         type="password"
                                         value={newPassword}
                                         onChange={e => setNewPassword(e.target.value)}
+                                        required
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     />
                                 </div>
@@ -192,6 +196,7 @@ export default function SettingsPage() {
                                         type="password"
                                         value={confirmPassword}
                                         onChange={e => setConfirmPassword(e.target.value)}
+                                        required
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     />
                                 </div>
@@ -226,6 +231,7 @@ export default function SettingsPage() {
                                     <p className="text-sm text-gray-500">Receive alerts on your device</p>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
+                                    {/* TODO: Add persistence for notification settings */}
                                     <input type="checkbox" className="sr-only peer" defaultChecked />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                                 </label>

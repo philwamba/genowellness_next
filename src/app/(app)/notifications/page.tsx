@@ -20,7 +20,6 @@ export default function NotificationsPage() {
         markAsRead, 
         markAllAsRead, 
         remove,
-        mutate 
     } = useNotifications()
 
     const handleMarkAsRead = async (id: number) => {
@@ -28,6 +27,7 @@ export default function NotificationsPage() {
             await markAsRead(id)
         } catch (error) {
             console.error('Failed to mark as read', error)
+            toast.error('Failed to mark notification as read')
         }
     }
 
