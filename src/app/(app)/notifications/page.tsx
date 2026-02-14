@@ -127,8 +127,23 @@ export default function NotificationsPage() {
                                         'ring-1 ring-primary/20',
                                 )}>
                                 <div
-                                    onClick={() => !notification.read_at && handleMarkAsRead(notification.id)}
-                                    className="flex gap-3 cursor-pointer">
+                                    role="button"
+                                    tabIndex={0}
+                                    onClick={() =>
+                                        !notification.read_at &&
+                                        handleMarkAsRead(notification.id)
+                                    }
+                                    onKeyDown={e => {
+                                        if (
+                                            !notification.read_at &&
+                                            (e.key === 'Enter' ||
+                                                e.key === ' ')
+                                        ) {
+                                            e.preventDefault()
+                                            handleMarkAsRead(notification.id)
+                                        }
+                                    }}
+                                    className="flex gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-primary rounded-lg"
                                     <div
                                         className={cn(
                                             'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',

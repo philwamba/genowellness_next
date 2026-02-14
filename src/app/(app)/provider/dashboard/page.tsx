@@ -64,7 +64,7 @@ export default function ProviderDashboardPage() {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">
-            <PageHeader title="Provider Dashboard" />
+            <PageHeader title="Dashboard" />
 
             <main className="px-4 py-6 space-y-6">
                 {/* Stats Grid */}

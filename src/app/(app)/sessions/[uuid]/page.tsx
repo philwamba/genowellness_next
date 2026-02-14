@@ -122,7 +122,6 @@ export default function SessionDetailPage() {
         )
     }
 
-    // Initialize provider based on configuration
     const videoProvider = useMemo(() => {
         const envProvider = process.env.NEXT_PUBLIC_VIDEO_PROVIDER
         const providerName: 'daily' | 'livekit' = envProvider === 'livekit' ? 'livekit' : 'daily'
@@ -184,8 +183,6 @@ export default function SessionDetailPage() {
             setToken('')
         }
     }, [activeVideo, session?.id])
-
-    // ... inside render ...
 
     if (isLoading) {
         return (

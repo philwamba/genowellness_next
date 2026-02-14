@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { FiMail, FiArrowLeft, FiCheckCircle } from 'react-icons/fi'
 
-import { authApi } from '@/lib/api/client'
+import { authApi, ApiError } from '@/lib/api/client'
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState('')
@@ -22,7 +22,12 @@ export default function ForgotPasswordPage() {
             setIsSubmitted(true)
         } catch (error) {
             console.error('Failed to send reset link:', error)
-            const message = error instanceof Error ? error.message : 'Failed to send reset link. Please try again.'
+            let message = 'Failed to send reset link. Please try again.'
+            if (error instanceof ApiError) {
+                message = error.errors?.email?.[0] || error.message
+            } else if (error instanceof Error) {
+                message = error.message
+            }
             setError(message)
         } finally {
             setIsLoading(false)

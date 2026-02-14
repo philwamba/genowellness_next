@@ -32,6 +32,13 @@ export default function SearchPage() {
 
     const [lastQuery, setLastQuery] = useState('')
 
+    // Re-search when category changes (if user has already searched)
+    useEffect(() => {
+        if (hasSearched && lastQuery) {
+            performSearch(lastQuery)
+        }
+    }, [category]) // eslint-disable-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         // Load recent searches from localStorage
         const saved = localStorage.getItem('recent_searches')

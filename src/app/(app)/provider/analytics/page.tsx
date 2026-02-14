@@ -24,17 +24,19 @@ import { AnalyticsOverview, ChartDataItem } from '@/types'
 
 import { useAuthStore } from '@/lib/stores/auth-store'
 
+interface StatItem {
+    label: string
+    value: string
+    isPositive: boolean
+    icon: React.ElementType
+    color: string
+    bg: string
+}
+
 export default function AnalyticsPage() {
     const router = useRouter()
 
-    interface StatItem {
-        label: string
-        value: string
-        isPositive: boolean
-        icon: React.ElementType
-        color: string
-        bg: string
-    }
+
 
     const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(true)

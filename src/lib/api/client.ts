@@ -1,6 +1,8 @@
 import type {
     Service,
+    Provider,
     ProviderProfile,
+    Article,
     Booking,
     TimeSlot,
     User,
