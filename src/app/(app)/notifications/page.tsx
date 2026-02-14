@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AppHeader } from '@/components/layout/app-header'
 import { cn } from '@/lib/utils'
+import { useNotifications } from '@/lib/hooks/use-notifications'
 import {
     FiBell,
     FiCalendar,
@@ -11,80 +11,42 @@ import {
     FiStar,
     FiTrash2,
 } from 'react-icons/fi'
-
-interface Notification {
-    id: string
-    type: 'session' | 'message' | 'achievement' | 'reminder' | 'general'
-    title: string
-    body: string
-    link?: string
-    read: boolean
-    created_at: string
-}
+import { toast } from 'sonner'
 
 export default function NotificationsPage() {
-    const [notifications, setNotifications] = useState<Notification[]>([])
-    const [isLoading, setIsLoading] = useState(true)
+    const { 
+        notifications, 
+        isLoading, 
+        markAsRead, 
+        markAllAsRead, 
+        remove,
+        mutate 
+    } = useNotifications()
 
-    useEffect(() => {
-        fetchNotifications()
-    }, [])
-
-    const fetchNotifications = async () => {
+    const handleMarkAsRead = async (id: number) => {
         try {
-            // API call would go here
-            // For now, using mock data
-            setNotifications([
-                {
-                    id: '1',
-                    type: 'session',
-                    title: 'Session Reminder',
-                    body: 'Your session with Dr. Smith starts in 1 hour',
-                    link: '/sessions/123',
-                    read: false,
-                    created_at: new Date().toISOString(),
-                },
-                {
-                    id: '2',
-                    type: 'achievement',
-                    title: 'New Badge Earned!',
-                    body: 'Congratulations! You earned the "Week Warrior" badge',
-                    link: '/profile',
-                    read: false,
-                    created_at: new Date(Date.now() - 3600000).toISOString(),
-                },
-                {
-                    id: '3',
-                    type: 'message',
-                    title: 'New Message',
-                    body: 'You have a new message from your wellness coach',
-                    link: '/messages',
-                    read: true,
-                    created_at: new Date(Date.now() - 86400000).toISOString(),
-                },
-            ])
+            await markAsRead(id)
         } catch (error) {
-            console.error('Failed to fetch notifications:', error)
-        } finally {
-            setIsLoading(false)
+            console.error('Failed to mark as read', error)
         }
     }
 
-    const markAsRead = async (id: string) => {
-        setNotifications(prev =>
-            prev.map(n => (n.id === id ? { ...n, read: true } : n)),
-        )
-        // API call would go here
+    const handleMarkAllAsRead = async () => {
+        try {
+            await markAllAsRead()
+            toast.success('All notifications marked as read')
+        } catch (error) {
+            toast.error('Failed to mark all as read')
+        }
     }
 
-    const markAllAsRead = async () => {
-        setNotifications(prev => prev.map(n => ({ ...n, read: true })))
-        // API call would go here
-    }
-
-    const deleteNotification = async (id: string) => {
-        setNotifications(prev => prev.filter(n => n.id !== id))
-        // API call would go here
+    const handleDelete = async (id: number) => {
+        try {
+            await remove(id)
+            toast.success('Notification removed')
+        } catch (error) {
+            toast.error('Failed to remove notification')
+        }
     }
 
     const getNotificationIcon = (type: string) => {
@@ -114,7 +76,7 @@ export default function NotificationsPage() {
         return date.toLocaleDateString()
     }
 
-    const unreadCount = notifications.filter(n => !n.read).length
+    const unreadCount = notifications.filter(n => !n.read_at).length
 
     return (
         <div>
@@ -124,7 +86,7 @@ export default function NotificationsPage() {
                 rightContent={
                     unreadCount > 0 && (
                         <button
-                            onClick={markAllAsRead}
+                            onClick={handleMarkAllAsRead}
                             className="text-sm text-primary font-medium">
                             Mark all read
                         </button>
@@ -161,46 +123,45 @@ export default function NotificationsPage() {
                                 key={notification.id}
                                 className={cn(
                                     'bg-white rounded-2xl p-4 shadow-sm relative',
-                                    !notification.read &&
+                                    !notification.read_at &&
                                         'ring-1 ring-primary/20',
                                 )}>
-                                <Link
-                                    href={notification.link || '#'}
-                                    onClick={() => markAsRead(notification.id)}
-                                    className="flex gap-3">
+                                <div
+                                    onClick={() => !notification.read_at && handleMarkAsRead(notification.id)}
+                                    className="flex gap-3 cursor-pointer">
                                     <div
                                         className={cn(
                                             'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',
-                                            notification.type === 'session' &&
+                                            notification.data?.type === 'session' &&
                                                 'bg-blue-100',
-                                            notification.type === 'message' &&
+                                            notification.data?.type === 'message' &&
                                                 'bg-green-100',
-                                            notification.type ===
+                                            notification.data?.type ===
                                                 'achievement' &&
                                                 'bg-yellow-100',
-                                            notification.type === 'reminder' &&
+                                            notification.data?.type === 'reminder' &&
                                                 'bg-purple-100',
-                                            notification.type === 'general' &&
+                                            (!notification.data?.type || notification.data?.type === 'general') &&
                                                 'bg-gray-100',
                                         )}>
-                                        {getNotificationIcon(notification.type)}
+                                        {getNotificationIcon(notification.data?.type || 'general')}
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 pr-8">
                                         <div className="flex items-start justify-between gap-2">
                                             <h3
                                                 className={cn(
                                                     'font-medium text-gray-900',
-                                                    !notification.read &&
+                                                    !notification.read_at &&
                                                         'font-semibold',
                                                 )}>
-                                                {notification.title}
+                                                {notification.data?.title || 'Notification'}
                                             </h3>
-                                            {!notification.read && (
+                                            {!notification.read_at && (
                                                 <span className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-2" />
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-500 mt-0.5">
-                                            {notification.body}
+                                            {notification.data?.body || ''}
                                         </p>
                                         <p className="text-xs text-gray-400 mt-1">
                                             {formatTime(
@@ -208,13 +169,13 @@ export default function NotificationsPage() {
                                             )}
                                         </p>
                                     </div>
-                                </Link>
+                                </div>
                                 <button
                                     onClick={e => {
-                                        e.preventDefault()
-                                        deleteNotification(notification.id)
+                                        e.stopPropagation()
+                                        handleDelete(notification.id)
                                     }}
-                                    className="absolute top-4 right-4 p-1 text-gray-400 hover:text-red-500 transition-colors">
+                                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-red-500 transition-colors z-10">
                                     <FiTrash2 className="w-4 h-4" />
                                 </button>
                             </div>

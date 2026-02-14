@@ -16,21 +16,11 @@ export default function ForgotPasswordPage() {
         setIsLoading(true)
 
         try {
-            // API call would go here
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
-            })
-
-            if (!response.ok) {
-                throw new Error('Failed to send reset link')
-            }
-
+            await authApi.forgotPassword(email)
             setIsSubmitted(true)
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to send reset link:', error)
-            setError('Failed to send reset link. Please try again.')
+            setError(error.message || 'Failed to send reset link. Please try again.')
         } finally {
             setIsLoading(false)
         }

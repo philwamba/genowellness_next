@@ -142,8 +142,14 @@ export default function SessionDetailPage() {
         if (activeVideo && session?.id) {
             const fetchToken = async () => {
                 try {
-                    // Replace with actual API endpoint
-                    const res = await fetch(`/api/video/token?sessionId=${session.id}`, {
+                    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+                    const res = await fetch(`${baseUrl}/video/token`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure token is passed
+                        },
+                        body: JSON.stringify({ sessionId: session.id }),
                         signal: abortController.signal
                     })
                     
