@@ -15,11 +15,19 @@ export function AvatarUploader({ currentAvatarUrl, onUpload, className }: Avatar
     const [isUploading, setIsUploading] = useState(false)
     const [previewUrl, setPreviewUrl] = useState<string | null>(currentAvatarUrl || null)
     
-    const handleFileSelect = async (file: File) => {
-        if (!file) return // Handle generic reset if needed
+    const handleFileSelect = async (file: File | null) => {
+        if (!file) {
+            setPreviewUrl(currentAvatarUrl || null)
+            return
+        }
 
         setIsUploading(true)
         
+        // Revoke previous URL if it was a blob
+        if (previewUrl && previewUrl.startsWith('blob:')) {
+            URL.revokeObjectURL(previewUrl)
+        }
+
         // optimistic update for immediate feedback
         const objectUrl = URL.createObjectURL(file)
         setPreviewUrl(objectUrl)
@@ -31,11 +39,21 @@ export function AvatarUploader({ currentAvatarUrl, onUpload, className }: Avatar
             console.error(error)
             toast.error('Failed to update avatar')
             // Revert on failure
+            if (objectUrl) URL.revokeObjectURL(objectUrl)
             setPreviewUrl(currentAvatarUrl || null)
         } finally {
             setIsUploading(false)
         }
     }
+
+    // Cleanup effect
+    React.useEffect(() => {
+        return () => {
+            if (previewUrl && previewUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(previewUrl)
+            }
+        }
+    }, [previewUrl])
 
     return (
         <div className={`flex flex-col items-center gap-4 ${className}`}>

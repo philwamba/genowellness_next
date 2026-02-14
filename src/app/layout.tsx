@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Domine, Outfit } from 'next/font/google'
 import { QueryProvider } from '@/lib/providers/query-provider'
+import { NotificationsProvider } from '@/lib/providers/notifications-provider'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 import './styles/app.css'
@@ -32,8 +33,10 @@ export default function RootLayout({
             <body
                 className={`${domine.variable} ${outfit.variable} antialiased`}>
                 <QueryProvider>
-                    {children}
-                    <Toaster position="top-right" richColors />
+                    <NotificationsProvider>
+                        {children}
+                        <Toaster position="top-right" richColors />
+                    </NotificationsProvider>
                 </QueryProvider>
             </body>
         </html>

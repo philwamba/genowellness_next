@@ -12,6 +12,7 @@ interface PreJoinScreenProps {
 export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps) {
     const videoRef = useRef<HTMLVideoElement>(null)
     const [stream, setStream] = useState<MediaStream | null>(null)
+    const streamRef = useRef<MediaStream | null>(null)
     const [isAudioEnabled, setIsAudioEnabled] = useState(true)
     const [isVideoEnabled, setIsVideoEnabled] = useState(true)
     const [hasPermission, setHasPermission] = useState<boolean | null>(null)
@@ -27,11 +28,15 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
                 })
                 
                 if (mounted) {
+                    streamRef.current = mediaStream
                     setStream(mediaStream)
                     setHasPermission(true)
                     if (videoRef.current) {
                         videoRef.current.srcObject = mediaStream
                     }
+                } else {
+                    // If unmounted during promise, stop immediately
+                    mediaStream.getTracks().forEach(track => track.stop())
                 }
             } catch (err) {
                 console.error("Error accessing media devices:", err)
@@ -45,15 +50,15 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
 
         return () => {
             mounted = false
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop())
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop())
             }
         }
     }, [])
-
+    
     const toggleAudio = () => {
-        if (stream) {
-            stream.getAudioTracks().forEach(track => {
+        if (streamRef.current) {
+            streamRef.current.getAudioTracks().forEach(track => {
                 track.enabled = !isAudioEnabled
             })
             setIsAudioEnabled(!isAudioEnabled)
@@ -61,8 +66,8 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
     }
 
     const toggleVideo = () => {
-        if (stream) {
-            stream.getVideoTracks().forEach(track => {
+        if (streamRef.current) {
+            streamRef.current.getVideoTracks().forEach(track => {
                 track.enabled = !isVideoEnabled
             })
             setIsVideoEnabled(!isVideoEnabled)
@@ -142,7 +147,9 @@ export function PreJoinScreen({ onJoin, isLoading = false }: PreJoinScreenProps)
             <div className="p-8 flex flex-col justify-center items-center text-center space-y-6">
                 <div className="space-y-2">
                     <h2 className="text-2xl font-bold text-gray-900">Ready to join?</h2>
-                    <p className="text-gray-500">Checking your devices...</p>
+                    <p className="text-gray-500">
+                        {hasPermission === null ? 'Checking your devices...' : hasPermission ? 'Devices ready' : 'Permission denied'}
+                    </p>
                 </div>
 
                 <div className="w-full space-y-3">

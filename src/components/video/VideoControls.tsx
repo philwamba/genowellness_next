@@ -22,16 +22,26 @@ export function VideoControls({ className = '', showNotes, onToggleNotes }: Vide
 
     const toggleMute = async () => {
         if (!room) return
-        const newState = !isMuted
-        await room.setMicrophoneEnabled(!newState)
-        setIsMuted(newState)
+        try {
+            const newState = !isMuted
+            await room.setMicrophoneEnabled(!newState)
+            setIsMuted(newState)
+        } catch (error) {
+            console.error(error)
+            toast.error('Failed to toggle microphone')
+        }
     }
 
     const toggleVideo = async () => {
         if (!room) return
-        const newState = !isVideoOff
-        await room.setCameraEnabled(!newState)
-        setIsVideoOff(newState)
+        try {
+            const newState = !isVideoOff
+            await room.setCameraEnabled(!newState)
+            setIsVideoOff(newState)
+        } catch (error) {
+            console.error(error)
+            toast.error('Failed to toggle camera')
+        }
     }
 
     const toggleScreenShare = () => {

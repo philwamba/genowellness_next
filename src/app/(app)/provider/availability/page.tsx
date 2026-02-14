@@ -1,20 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { FiPlus, FiTrash2, FiClock, FiSave } from 'react-icons/fi'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-
-type TimeSlot = {
-    start: string
-    end: string
-}
-
-type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
-
-type WeeklySchedule = Record<WeekDay, TimeSlot[]>
+import { providerDashboardApi } from '@/lib/api/client'
+import { useAuthStore } from '@/lib/stores/auth-store'
+import { WeeklySchedule, AvailabilitySlot, WeekDay, TimeSlot } from '@/types'
 
 const DAYS: { id: WeekDay; label: string }[] = [
     { id: 'monday', label: 'Monday' },
@@ -28,16 +22,65 @@ const DAYS: { id: WeekDay; label: string }[] = [
 
 export default function AvailabilityPage() {
     const router = useRouter()
+    const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(false)
+    const [isInitialLoading, setIsInitialLoading] = useState(true)
     const [schedule, setSchedule] = useState<WeeklySchedule>({
-        monday: [{ start: '09:00', end: '17:00' }],
-        tuesday: [{ start: '09:00', end: '17:00' }],
-        wednesday: [{ start: '09:00', end: '17:00' }],
-        thursday: [{ start: '09:00', end: '17:00' }],
-        friday: [{ start: '09:00', end: '15:00' }],
+        monday: [],
+        tuesday: [],
+        wednesday: [],
+        thursday: [],
+        friday: [],
         saturday: [],
         sunday: [],
     })
+
+    useEffect(() => {
+        const loadAvailability = async () => {
+            try {
+                const { time_slots } = await providerDashboardApi.getAvailability()
+                
+                // Transform time_slots array to WeeklySchedule object
+                const newSchedule: WeeklySchedule = {
+                    monday: [],
+                    tuesday: [],
+                    wednesday: [],
+                    thursday: [],
+                    friday: [],
+                    saturday: [],
+                    sunday: [],
+                }
+
+                time_slots.forEach((slot: TimeSlot) => {
+                    // Try to use day_name first, then fallback to logic if needed (though TimeSlot has day_name)
+                    const rawDay = slot.day_name || ''
+                    const day = rawDay.toLowerCase().trim() as WeekDay
+                    
+                    if (newSchedule[day]) {
+                        newSchedule[day].push({
+                            start: slot.start_time.substring(0, 5), // HH:MM
+                            end: slot.end_time.substring(0, 5)
+                        })
+                    } else {
+                        console.warn(`Encountered unknown day "${slot.day_name}" (id: ${slot.id}) in availability slots.`)
+                    }
+                })
+
+                setSchedule(newSchedule)
+            } catch (error) {
+                console.error('Failed to load availability:', error)
+                toast.error('Failed to load availability')
+            } finally {
+                setIsInitialLoading(false)
+            }
+        }
+        
+        if (user) {
+            loadAvailability()
+        } else {
+            setIsInitialLoading(false)
+        }
+    }, [user])
 
     const addSlot = (day: WeekDay) => {
         setSchedule((prev) => ({
@@ -56,7 +99,7 @@ export default function AvailabilityPage() {
     const updateSlot = (
         day: WeekDay,
         index: number,
-        field: keyof TimeSlot,
+        field: keyof AvailabilitySlot,
         value: string,
     ) => {
         setSchedule((prev) => ({
@@ -68,13 +111,23 @@ export default function AvailabilityPage() {
     }
 
     const handleSave = async () => {
+        // Validate time slots
+        for (const day of DAYS) {
+            for (const slot of schedule[day.id]) {
+                if (slot.start >= slot.end) {
+                    toast.error(`Invalid time slot on ${day.label}: Start time must be before end time`)
+                    return
+                }
+            }
+        }
+
         setIsLoading(true)
         try {
-            // Mock API call
-            await new Promise((resolve) => setTimeout(resolve, 1000))
+            await providerDashboardApi.updateAvailability(schedule)
             toast.success('Availability updated successfully')
             router.push('/provider/dashboard')
         } catch (error) {
+            console.error(error)
             toast.error('Failed to update availability')
         } finally {
             setIsLoading(false)

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/layout/page-header'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { toast } from 'sonner'
+import { providerDashboardApi } from '@/lib/api/client'
 import { FiSave, FiUser, FiDollarSign, FiAward, FiClock } from 'react-icons/fi'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -56,12 +57,14 @@ export default function ProviderProfilePage() {
         e.preventDefault()
         setIsLoading(true)
         try {
-            await updateProfile({
+            await providerDashboardApi.updateProfile({
                 bio: formData.bio,
                 hourly_rate: parseFloat(formData.hourly_rate) || 0,
                 specializations: formData.specializations,
                 experience_years: parseInt(formData.experience_years) || 0,
             })
+            // Optionally refresh user profile in auth store if needed
+            await refreshProfile() 
             toast.success('Profile updated successfully')
         } catch (error) {
             toast.error('Failed to update profile')
@@ -71,7 +74,21 @@ export default function ProviderProfilePage() {
     }
 
     if (!user || !profile) {
-        return null 
+        return (
+            <div className="min-h-screen bg-gray-50 pb-24 flex items-center justify-center">
+                 <div className="text-center p-6">
+                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Not Found</h2>
+                    <p className="text-gray-500">Unable to load provider profile. Please try again later.</p>
+                    <Button 
+                        variant="outline" 
+                        className="mt-4"
+                        onClick={() => router.back()}
+                    >
+                        Go Back
+                    </Button>
+                 </div>
+            </div>
+        )
     }
 
     return (

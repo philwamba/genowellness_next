@@ -68,6 +68,17 @@ export default function BookingsPage() {
         fetchBookings()
     }, [fetchBookings])
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && showCancelModal) {
+                setShowCancelModal(null)
+                setCancelReason('')
+            }
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [showCancelModal])
+
     const handleCancelBooking = async () => {
         if (!showCancelModal) return
         setIsCancelling(true)
@@ -265,18 +276,15 @@ export default function BookingsPage() {
                         setShowCancelModal(null)
                         setCancelReason('')
                     }}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title"
                 >
                     <div 
                         className="bg-white rounded-2xl p-6 w-full max-w-md"
                         onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Escape') {
-                                setShowCancelModal(null)
-                                setCancelReason('')
-                            }
-                        }}
                     >
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        <h3 id="modal-title" className="text-lg font-semibold text-gray-900 mb-4">
                             Cancel Booking
                         </h3>
                         <p className="text-sm text-gray-500 mb-4">

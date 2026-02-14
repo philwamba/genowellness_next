@@ -17,6 +17,12 @@ const sessionSchema = z.object({
     date: z.string().min(1, 'Date is required'),
     time: z.string().min(1, 'Time is required'),
     duration: z.string().min(1, 'Duration is required'),
+}).refine((data) => {
+    const sessionDateTime = new Date(`${data.date}T${data.time}`)
+    return sessionDateTime > new Date()
+}, {
+    message: 'Session must be scheduled in the future',
+    path: ['date'],
 })
 
 type SessionFormData = z.infer<typeof sessionSchema>
@@ -29,7 +35,6 @@ export function CreateSessionForm() {
     const {
         register,
         handleSubmit,
-        control,
         watch,
         formState: { errors }
     } = useForm<SessionFormData>({
@@ -43,8 +48,10 @@ export function CreateSessionForm() {
     const sessionType = watch('type')
 
     const onSubmit = async (data: SessionFormData) => {
-        if (sessionType === 'group' && participants.length === 0) {
-            toast.error('Please add at least one participant for a group session')
+        if ((sessionType === 'group' || sessionType === 'one_on_one') && participants.length === 0) {
+            toast.error(sessionType === 'one_on_one' 
+                ? 'Please add the participant for this 1-on-1 session' 
+                : 'Please add at least one participant for a group session')
             return
         }
 

@@ -5,7 +5,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { getGreeting, getInitials } from '@/lib/utils'
-import { FiBell, FiArrowLeft } from 'react-icons/fi'
+import { FiArrowLeft } from 'react-icons/fi'
+import { NotificationCenter } from '@/components/notifications/notification-center'
 
 export interface AppHeaderProps {
     showGreeting?: boolean
@@ -66,13 +67,7 @@ export function AppHeader({ showGreeting = true, title, rightContent, showBack, 
 
                     <div className="flex items-center gap-3">
                         {rightContent}
-                        <Link
-                            href="/notifications"
-                            className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors">
-                            <FiBell className="w-6 h-6" />
-                            {/* Notification badge */}
-                            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-                        </Link>
+                        <NotificationCenter />
 
                         {user && (
                             <Link href="/profile" className="flex-shrink-0">

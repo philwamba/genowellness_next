@@ -123,13 +123,55 @@ export default function SessionDetailPage() {
     }
 
     // Initialize provider based on configuration
-    // In a real app, this might come from env or session settings
     const videoProvider = useMemo(() => {
-        // Default to Daily for now, or check generic config
-        // If we want to switch between generic providers we can use env
-        const providerName = process.env.NEXT_PUBLIC_VIDEO_PROVIDER === 'livekit' ? 'livekit' : 'daily'
+        const envProvider = process.env.NEXT_PUBLIC_VIDEO_PROVIDER
+        const providerName: 'daily' | 'livekit' = envProvider === 'livekit' ? 'livekit' : 'daily'
+        
+        if (envProvider && envProvider !== 'daily' && envProvider !== 'livekit') {
+            console.warn(`Unknown video provider "${envProvider}", defaulting to "daily"`)
+        }
+        
         return VideoProviderFactory.create(providerName)
     }, [])
+
+    const [token, setToken] = useState<string>('')
+
+    useEffect(() => {
+        let abortController = new AbortController()
+
+        if (activeVideo && session?.id) {
+            const fetchToken = async () => {
+                try {
+                    // Replace with actual API endpoint
+                    const res = await fetch(`/api/video/token?sessionId=${session.id}`, {
+                        signal: abortController.signal
+                    })
+                    
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch token: ${res.statusText}`)
+                    }
+                    
+                    const data = await res.json()
+                    setToken(data.token)
+                } catch (error) {
+                    if (error instanceof Error && error.name !== 'AbortError') {
+                        console.error('Failed to fetch video token:', error)
+                        // Optionally set error state here
+                    }
+                }
+            }
+            fetchToken()
+        } else {
+            setToken('')
+        }
+
+        return () => {
+            abortController.abort()
+            setToken('')
+        }
+    }, [activeVideo, session?.id])
+
+    // ... inside render ...
 
     if (isLoading) {
         return (
@@ -165,7 +207,7 @@ export default function SessionDetailPage() {
                         <section className="bg-white rounded-2xl p-4 shadow-sm">
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Live Session</h2>
                             <VideoRoom 
-                                token="INSERT_TOKEN_HERE" // We need a token mechanism. For Daily it might be implied in URL. For LiveKit need token.
+                                token={token} 
                                 roomUrl={session.meeting_url} 
                             />
                              <button

@@ -6,7 +6,7 @@ import { UploadCloud, X, File, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface FileUploadProps {
-    onFileSelect: (file: File) => void
+    onFileSelect: (file: File | null) => void
     accept?: DropzoneOptions['accept']
     maxSize?: number // in bytes
     label?: string
@@ -39,6 +39,36 @@ export function FileUpload({
     )
     const [internalError, setInternalError] = useState<string | null>(null)
 
+    // Sync with value prop
+    React.useEffect(() => {
+        if (value === undefined) return
+
+        if (preview && preview.startsWith('blob:')) {
+            URL.revokeObjectURL(preview)
+        }
+
+        if (value === null) {
+            setPreview(null)
+            setFileName(null)
+        } else if (typeof value === 'string') {
+            setPreview(value)
+            setFileName('Uploaded File')
+        } else {
+            const objectUrl = URL.createObjectURL(value)
+            setPreview(objectUrl)
+            setFileName(value.name)
+        }
+    }, [value])
+
+    // Cleanup on unmount
+    React.useEffect(() => {
+        return () => {
+             if (preview && preview.startsWith('blob:')) {
+                 URL.revokeObjectURL(preview)
+             }
+        }
+    }, [preview])
+
     const onDrop = useCallback((acceptedFiles: File[], fileRejections: FileRejection[]) => {
         setInternalError(null)
 
@@ -60,7 +90,6 @@ export function FileUpload({
             if (file.type.startsWith('image/')) {
                 const objectUrl = URL.createObjectURL(file)
                 setPreview(objectUrl)
-                // Cleanup URL on unmount is handled by the consumer or we can add useEffect cleanup here if needed
             } else {
                 setPreview(null)
             }
@@ -77,13 +106,14 @@ export function FileUpload({
 
     const handleRemove = (e: React.MouseEvent) => {
         e.stopPropagation()
-        onFileSelect(null as unknown as File) // Signal removal
+        onFileSelect(null) 
         setPreview(null)
         setFileName(null)
         setInternalError(null)
     }
 
     const errorMessage = externalError || internalError
+    const hasFile = value !== undefined ? !!value : !!fileName
 
     return (
         <div className={cn("w-full", className)}>
@@ -99,13 +129,13 @@ export function FileUpload({
                     "relative border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer flex flex-col items-center justify-center text-center min-h-[150px]",
                     isDragActive ? "border-primary bg-primary/5" : "border-gray-300 hover:border-primary/50",
                     errorMessage ? "border-red-500 bg-red-50" : "",
-                    value ? "border-solid border-gray-200 bg-gray-50" : "",
+                    hasFile ? "border-solid border-gray-200 bg-gray-50" : "",
                     disabled ? "opacity-60 cursor-not-allowed hover:border-gray-300" : ""
                 )}
             >
                 <input {...getInputProps()} />
 
-                {value ? (
+                {hasFile ? (
                     <div className="relative w-full flex items-center gap-4">
                         {preview ? (
                             <div className="relative w-16 h-16 rounded-md overflow-hidden shrink-0 border border-gray-200">

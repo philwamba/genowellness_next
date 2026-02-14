@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { PageHeader } from '@/components/layout/page-header'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { formatCurrency } from '@/lib/utils'
+import { providerDashboardApi } from '@/lib/api/client'
 import {
     FiCalendar,
     FiClock,
@@ -17,39 +18,47 @@ import {
     FiTrendingUp,
 } from 'react-icons/fi'
 
+import { ProviderDashboardStats, Session } from '@/types'
+
 export default function ProviderDashboardPage() {
     const router = useRouter()
     const { user } = useAuthStore()
     const profile = user?.provider_profile
-    const [stats, setStats] = useState({
-        totalSessions: 0,
-        totalEarnings: 0,
-        rating: 0,
-        reviews: 0,
-        upcomingBookings: 0,
-    })
+    const [stats, setStats] = useState<ProviderDashboardStats | null>(null)
+    const [upcomingSessions, setUpcomingSessions] = useState<Session[]>([])
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        // Simulate fetching stats
-        // In real app, call API
-        const loadStats = async () => {
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            setStats({
-                totalSessions: 142,
-                totalEarnings: 12500,
-                rating: 4.9,
-                reviews: 84,
-                upcomingBookings: 5,
-            })
-            setIsLoading(false)
+        let isMounted = true
+        const loadDashboard = async () => {
+            try {
+                const { stats, upcoming_sessions } = await providerDashboardApi.getDashboard()
+                setStats(stats)
+                setUpcomingSessions(upcoming_sessions)
+            } catch (error) {
+                if (!isMounted) return
+                console.error('Failed to load dashboard:', error)
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false)
+                }
+            }
         }
-        loadStats()
-    }, [])
+
+        if (user) {
+            loadDashboard()
+        } else {
+             setStats(null)
+             setUpcomingSessions([])
+             setIsLoading(false)
+        }
+
+        return () => {
+            isMounted = false
+        }
+    }, [user])
 
     if (!user || !profile) {
-        // Redirect or show loading/error if not a provider
-        // For now, just show simple state
         return null
     }
 
@@ -66,7 +75,7 @@ export default function ProviderDashboardPage() {
                             <span className="text-sm font-medium">Sessions</span>
                         </div>
                         <p className="text-2xl font-bold text-gray-900">
-                            {isLoading ? '-' : stats.totalSessions}
+                            {isLoading ? '-' : stats?.total_sessions || 0}
                         </p>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm">
@@ -75,7 +84,7 @@ export default function ProviderDashboardPage() {
                             <span className="text-sm font-medium">Earnings</span>
                         </div>
                         <p className="text-2xl font-bold text-gray-900">
-                            {isLoading ? '-' : formatCurrency(stats.totalEarnings)}
+                            {isLoading ? '-' : formatCurrency(stats?.total_earnings || 0)}
                         </p>
                     </div>
                     <div className="bg-white p-4 rounded-2xl shadow-sm">
@@ -85,10 +94,10 @@ export default function ProviderDashboardPage() {
                         </div>
                         <div className="flex items-end gap-2">
                             <p className="text-2xl font-bold text-gray-900">
-                                {isLoading ? '-' : stats.rating}
+                                {isLoading ? '-' : stats?.average_rating || 0}
                             </p>
                             <span className="text-xs text-gray-500 mb-1">
-                                ({stats.reviews} reviews)
+                                ({isLoading ? '-' : stats?.total_reviews || 0} reviews)
                             </span>
                         </div>
                     </div>
@@ -98,7 +107,7 @@ export default function ProviderDashboardPage() {
                             <span className="text-sm font-medium">Upcoming</span>
                         </div>
                         <p className="text-2xl font-bold text-gray-900">
-                            {isLoading ? '-' : stats.upcomingBookings}
+                            {isLoading ? '-' : upcomingSessions.length}
                         </p>
                     </div>
                 </div>
@@ -117,7 +126,7 @@ export default function ProviderDashboardPage() {
                                 <FiClock className="w-6 h-6" />
                             </div>
                             <span className="text-sm font-medium text-gray-900">
-                                Manage Availability
+                                Availability
                             </span>
                         </Link>
                         <Link
@@ -169,11 +178,44 @@ export default function ProviderDashboardPage() {
                             View All
                         </Link>
                     </div>
-                    {/* Placeholder for bookings list */}
-                    <div className="bg-white rounded-2xl p-6 text-center shadow-sm">
-                        <FiCalendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                        <p className="text-gray-500">No sessions scheduled for today</p>
-                    </div>
+                    {isLoading ? (
+                        <div className="space-y-3">
+                            {[1, 2].map((i) => (
+                                <div key={i} className="h-20 bg-gray-200 rounded-2xl animate-pulse" />
+                            ))}
+                        </div>
+                    ) : upcomingSessions.length > 0 ? (
+                        <div className="space-y-3">
+                            {upcomingSessions.map((session) => (
+                                <Link 
+                                    key={session.id} 
+                                    href={`/sessions/${session.uuid}`}
+                                    className="block bg-white p-4 rounded-2xl shadow-sm border border-gray-100"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{session.title || 'Session'}</h3>
+                                            <p className="text-sm text-gray-500">{new Date(session.scheduled_at).toLocaleString()}</p>
+                                        </div>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                            session.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                        }`}>
+                                            {session.status}
+                                        </span>
+                                    </div>
+                                    <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
+                                        <FiUser className="w-4 h-4" />
+                                        <span>{session.client?.name || 'Client'}</span>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-2xl p-6 text-center shadow-sm">
+                            <FiCalendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                            <p className="text-gray-500">No sessions scheduled</p>
+                        </div>
+                    )}
                 </section>
             </main>
         </div>

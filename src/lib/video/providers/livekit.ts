@@ -177,6 +177,13 @@ class LiveKitVideoRoom implements IVideoRoom {
             mediaStreamTrack: videoPub.track.mediaStreamTrack
         } : undefined
 
+        let metadata
+        try {
+            metadata = participant.metadata ? JSON.parse(participant.metadata) : undefined
+        } catch {
+            metadata = {}
+        }
+
         return {
             id: participant.identity,
             name: participant.name || 'Guest',
@@ -185,7 +192,7 @@ class LiveKitVideoRoom implements IVideoRoom {
             hasVideo: !!videoTrack,
             audioTrack,
             videoTrack,
-            metadata: participant.metadata ? JSON.parse(participant.metadata || '{}') : undefined
+            metadata
         }
     }
 }
