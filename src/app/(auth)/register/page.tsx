@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuthStore } from '@/lib/stores/auth-store'
-import { FiUser, FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi'
+import { FiUser, FiMail, FiLock, FiEye, FiEyeOff, FiArrowLeft } from 'react-icons/fi'
 import { FcGoogle } from 'react-icons/fc'
 
 export default function RegisterPage() {
@@ -51,11 +52,26 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col px-6 py-12">
+        <div className="min-h-screen flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-md flex flex-col">
+            {/* Back to Home */}
+            <Link
+                href="/"
+                className="flex items-center gap-2 text-subtitle hover:text-title mb-6 self-start">
+                <FiArrowLeft className="w-4 h-4" />
+                Back to Home
+            </Link>
+
             {/* Header */}
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-primary mb-2">GENO</h1>
-                <p className="text-gray-500">Create your account</p>
+                <Image
+                    src="/logo.png"
+                    alt="GENO"
+                    width={80}
+                    height={80}
+                    className="mx-auto mb-4"
+                />
+                <p className="text-subtitle">Create your account</p>
             </div>
 
             {/* Form */}
@@ -67,45 +83,45 @@ export default function RegisterPage() {
                 )}
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Full Name
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Full Name <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiUser className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type="text"
                             value={name}
                             onChange={e => setName(e.target.value)}
                             placeholder="Enter your full name"
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Email <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Password
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type={showPassword ? 'text' : 'password'}
                             value={password}
@@ -113,12 +129,12 @@ export default function RegisterPage() {
                             placeholder="Create a password"
                             required
                             minLength={6}
-                            className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-12 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-inactive hover:text-title">
                             {showPassword ? (
                                 <FiEyeOff className="w-5 h-5" />
                             ) : (
@@ -129,18 +145,18 @@ export default function RegisterPage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Confirm Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type={showPassword ? 'text' : 'password'}
                             value={confirmPassword}
                             onChange={e => setConfirmPassword(e.target.value)}
                             placeholder="Confirm your password"
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                     </div>
                 </div>
@@ -155,10 +171,10 @@ export default function RegisterPage() {
                 {/* Divider */}
                 <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-gray-200" />
+                        <div className="w-full border-t border-divider" />
                     </div>
                     <div className="relative flex justify-center text-sm">
-                        <span className="px-4 bg-white text-gray-500">
+                        <span className="px-4 bg-white text-subtitle">
                             or continue with
                         </span>
                     </div>
@@ -169,7 +185,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={handleGoogleLogin}
                     disabled={isLoading}
-                    className="w-full py-3 border border-gray-200 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50">
+                    className="w-full py-3 border border-divider rounded-xl font-medium text-title flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors disabled:opacity-50">
                     <FcGoogle className="w-5 h-5" />
                     Continue with Google
                 </button>
@@ -177,12 +193,13 @@ export default function RegisterPage() {
 
             {/* Footer */}
             <div className="text-center mt-8">
-                <p className="text-gray-500">
+                <p className="text-subtitle">
                     Already have an account?{' '}
                     <Link href="/login" className="text-primary font-medium">
                         Sign In
                     </Link>
                 </p>
+            </div>
             </div>
         </div>
     )

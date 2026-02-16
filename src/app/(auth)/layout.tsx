@@ -10,7 +10,12 @@ export default function AuthLayout({
     children: React.ReactNode
 }) {
     const router = useRouter()
-    const { isAuthenticated, isLoading } = useAuthStore()
+    const { isAuthenticated, isLoading, initializeAuth } = useAuthStore()
+
+    useEffect(() => {
+        const unsubscribe = initializeAuth()
+        return () => unsubscribe?.()
+    }, [initializeAuth])
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
