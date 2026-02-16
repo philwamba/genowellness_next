@@ -192,6 +192,7 @@ export const authApi = {
         ),
 
     firebaseAuth: (data: {
+        token: string
         firebase_uid: string
         email: string
         name?: string

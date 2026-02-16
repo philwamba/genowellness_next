@@ -8,11 +8,31 @@ import {
     signInWithPopup,
     onAuthStateChanged,
     User as FirebaseUser,
+    AuthError,
 } from 'firebase/auth'
 import { auth } from './config'
 import { api, authApi } from '../api/client'
 
 export type AuthUser = FirebaseUser
+
+// Map Firebase error codes to user-friendly messages
+export function getFirebaseErrorMessage(error: AuthError): string {
+    const errorMessages: Record<string, string> = {
+        'auth/invalid-credential': 'Invalid email or password. Please try again.',
+        'auth/user-not-found': 'No account found with this email.',
+        'auth/wrong-password': 'Incorrect password. Please try again.',
+        'auth/email-already-in-use': 'This email is already registered.',
+        'auth/weak-password': 'Password should be at least 6 characters.',
+        'auth/invalid-email': 'Please enter a valid email address.',
+        'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
+        'auth/network-request-failed': 'Network error. Please check your connection.',
+        'auth/popup-closed-by-user': 'Sign in was cancelled.',
+        'auth/operation-not-allowed': 'This sign-in method is not enabled.',
+        'auth/invalid-api-key': 'Configuration error. Please contact support.',
+    }
+
+    return errorMessages[error.code] || error.message || 'An error occurred. Please try again.'
+}
 
 // Sign in with email and password
 export async function signInWithEmail(email: string, password: string) {
@@ -58,7 +78,11 @@ export async function resetPassword(email: string) {
 
 // Authenticate with backend after Firebase auth
 export async function authenticateWithBackend(firebaseUser: FirebaseUser) {
+    // Get the Firebase ID token to send to backend for verification
+    const idToken = await firebaseUser.getIdToken()
+
     const response = await authApi.firebaseAuth({
+        token: idToken,
         firebase_uid: firebaseUser.uid,
         email: firebaseUser.email!,
         name: firebaseUser.displayName || undefined,

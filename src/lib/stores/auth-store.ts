@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { User, ProviderProfile } from '@/types'
 import { api, authApi, AuthenticationError } from '../api/client'
+import { AuthError } from 'firebase/auth'
 import {
     signInWithEmail,
     createAccountWithEmail,
@@ -9,6 +10,7 @@ import {
     firebaseSignOut,
     authenticateWithBackend,
     subscribeToAuthState,
+    getFirebaseErrorMessage,
     AuthUser,
 } from '../firebase/auth'
 
@@ -73,11 +75,13 @@ export const useAuthStore = create<AuthState>()(
                         isLoading: false,
                     })
                 } catch (error) {
+                    const errorMessage = (error as AuthError)?.code
+                        ? getFirebaseErrorMessage(error as AuthError)
+                        : error instanceof Error
+                            ? error.message
+                            : 'Login failed'
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Login failed',
+                        error: errorMessage,
                         isLoading: false,
                     })
                     throw error
@@ -101,11 +105,13 @@ export const useAuthStore = create<AuthState>()(
                         isLoading: false,
                     })
                 } catch (error) {
+                    const errorMessage = (error as AuthError)?.code
+                        ? getFirebaseErrorMessage(error as AuthError)
+                        : error instanceof Error
+                            ? error.message
+                            : 'Registration failed'
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Registration failed',
+                        error: errorMessage,
                         isLoading: false,
                     })
                     throw error
@@ -125,11 +131,13 @@ export const useAuthStore = create<AuthState>()(
                         isLoading: false,
                     })
                 } catch (error) {
+                    const errorMessage = (error as AuthError)?.code
+                        ? getFirebaseErrorMessage(error as AuthError)
+                        : error instanceof Error
+                            ? error.message
+                            : 'Google login failed'
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Google login failed',
+                        error: errorMessage,
                         isLoading: false,
                     })
                     throw error
