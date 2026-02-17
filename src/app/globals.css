@@ -5,6 +5,14 @@
   --foreground: #171717;
   --font-domine: var(--font-domine);
   --font-outfit: var(--font-outfit);
+
+  /* Brand colors accessible for utility classes */
+  --color-primary: #FD7103;
+  --color-primary-rgb: 253, 113, 3;
+  --color-title: #0F1724;
+  --color-subtitle: #6B7280;
+  --color-inactive: #3A4750;
+  --color-divider: #E5E7EB;
 }
 
 @theme inline {
