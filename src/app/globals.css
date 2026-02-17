@@ -78,45 +78,45 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Brand color utilities - explicit overrides for Tailwind v4 compatibility */
 .bg-primary {
-  background-color: var(--color-primary);
+  background-color: #FD7103 !important;
 }
 
 .text-primary {
-  color: var(--color-primary);
+  color: #FD7103 !important;
 }
 
 .border-primary {
-  border-color: var(--color-primary);
+  border-color: #FD7103 !important;
 }
 
 .ring-primary {
-  --tw-ring-color: var(--color-primary);
+  --tw-ring-color: #FD7103 !important;
 }
 
 .focus\:ring-primary:focus {
-  --tw-ring-color: var(--color-primary);
+  --tw-ring-color: #FD7103 !important;
 }
 
 .hover\:bg-primary\/90:hover {
-  background-color: rgba(var(--color-primary-rgb), 0.9);
+  background-color: rgba(253, 113, 3, 0.9) !important;
 }
 
 .text-title {
-  color: var(--color-title);
+  color: #0F1724 !important;
 }
 
 .text-subtitle {
-  color: var(--color-subtitle);
+  color: #6B7280 !important;
 }
 
 .text-inactive {
-  color: var(--color-inactive);
+  color: #3A4750 !important;
 }
 
 .border-divider {
-  border-color: var(--color-divider);
+  border-color: #E5E7EB !important;
 }
 
 .hover\:text-title:hover {
-  color: var(--color-title);
+  color: #0F1724 !important;
 }
