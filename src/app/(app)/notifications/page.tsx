@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { AppHeader } from '@/components/layout/app-header'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/lib/hooks/use-notifications'
@@ -25,8 +24,7 @@ export default function NotificationsPage() {
     const handleMarkAsRead = async (id: number) => {
         try {
             await markAsRead(id)
-        } catch (error) {
-            console.error('Failed to mark as read', error)
+        } catch {
             toast.error('Failed to mark notification as read')
         }
     }
@@ -35,7 +33,7 @@ export default function NotificationsPage() {
         try {
             await markAllAsRead()
             toast.success('All notifications marked as read')
-        } catch (error) {
+        } catch {
             toast.error('Failed to mark all as read')
         }
     }
@@ -44,7 +42,7 @@ export default function NotificationsPage() {
         try {
             await remove(id)
             toast.success('Notification removed')
-        } catch (error) {
+        } catch {
             toast.error('Failed to remove notification')
         }
     }

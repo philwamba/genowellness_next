@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout/page-header'
 import { useAuthStore } from '@/lib/stores/auth-store'
 import { toast } from 'sonner'
 import { providerDashboardApi } from '@/lib/api/client'
-import { FiSave, FiUser, FiDollarSign, FiAward, FiClock } from 'react-icons/fi'
+import { FiSave, FiDollarSign, FiAward, FiClock } from 'react-icons/fi'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -66,7 +66,7 @@ export default function ProviderProfilePage() {
             // Optionally refresh user profile in auth store if needed
             await refreshUser()
             toast.success('Profile updated successfully')
-        } catch (error) {
+        } catch {
             toast.error('Failed to update profile')
         } finally {
             setIsLoading(false)

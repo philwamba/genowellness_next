@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react'
 import { X, Save, FileText } from 'lucide-react'
-import { cn } from '@/lib/utils'
 
 interface SessionNotesProps {
     sessionId: string
@@ -12,7 +11,6 @@ interface SessionNotesProps {
 
 export function SessionNotes({ sessionId, isOpen, onClose }: SessionNotesProps) {
     const [note, setNote] = useState('')
-    const [isSaving, setIsSaving] = useState(false)
     const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
     // Load saved note (mock)

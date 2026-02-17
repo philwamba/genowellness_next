@@ -2,13 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { AppHeader } from '@/components/layout/app-header'
-import { 
-    FiUser, 
-    FiLock, 
-    FiBell, 
-    FiShield, 
-    FiChevronRight,
-    FiToggleRight,
+import {
+    FiUser,
+    FiBell,
+    FiShield,
     FiTrash2
 } from 'react-icons/fi'
 import { authApi } from '@/lib/api/client'

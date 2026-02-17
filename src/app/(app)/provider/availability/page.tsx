@@ -24,7 +24,7 @@ export default function AvailabilityPage() {
     const router = useRouter()
     const { user } = useAuthStore()
     const [isLoading, setIsLoading] = useState(false)
-    const [isInitialLoading, setIsInitialLoading] = useState(true)
+    const [_isInitialLoading, setIsInitialLoading] = useState(true)
     const [schedule, setSchedule] = useState<WeeklySchedule>({
         monday: [],
         tuesday: [],
