@@ -15,7 +15,8 @@ import {
 } from '../firebase/auth'
 
 function getAuthErrorMessage(error: unknown, fallback: string): string {
-    if ((error as AuthError)?.code) {
+    const code = (error as AuthError)?.code
+    if (typeof code === 'string' && code.startsWith('auth/')) {
         return getFirebaseErrorMessage(error as AuthError)
     }
     if (error instanceof AuthenticationError || error instanceof ApiError) {
@@ -183,10 +184,7 @@ export const useAuthStore = create<AuthState>()(
                     set({ user: response.user as User, isLoading: false })
                 } catch (error) {
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Failed to update profile',
+                        error: getAuthErrorMessage(error, 'Failed to update profile'),
                         isLoading: false,
                     })
                     throw error
