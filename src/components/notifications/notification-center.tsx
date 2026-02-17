@@ -98,7 +98,7 @@ export function NotificationCenter() {
                                                                     e.preventDefault()
                                                                     try {
                                                                         await markAsRead(notification.id)
-                                                                    } catch (error) {
+                                                                    } catch {
                                                                         toast.error('Failed to mark as read')
                                                                     }
                                                                 }}
@@ -112,7 +112,7 @@ export function NotificationCenter() {
                                                                 e.preventDefault()
                                                                 try {
                                                                     await remove(notification.id)
-                                                                } catch (error) {
+                                                                } catch {
                                                                     toast.error('Failed to delete notification')
                                                                 }
                                                             }}

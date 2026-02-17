@@ -1,5 +1,5 @@
 import useSWR from 'swr'
-import api, { notificationsApi } from '@/lib/api/client'
+import { notificationsApi } from '@/lib/api/client'
 import { Notification, PaginatedResponse } from '@/types'
 
 export function useNotifications() {
