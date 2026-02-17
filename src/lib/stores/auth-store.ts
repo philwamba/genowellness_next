@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { User, ProviderProfile } from '@/types'
-import { api, authApi, AuthenticationError } from '../api/client'
+import { api, authApi, AuthenticationError, ApiError } from '../api/client'
+import { AuthError } from 'firebase/auth'
 import {
     signInWithEmail,
     createAccountWithEmail,
@@ -9,8 +10,22 @@ import {
     firebaseSignOut,
     authenticateWithBackend,
     subscribeToAuthState,
+    getFirebaseErrorMessage,
     AuthUser,
 } from '../firebase/auth'
+
+function getAuthErrorMessage(error: unknown, fallback: string): string {
+    if ((error as AuthError)?.code) {
+        return getFirebaseErrorMessage(error as AuthError)
+    }
+    if (error instanceof AuthenticationError || error instanceof ApiError) {
+        return error.message
+    }
+    if (error instanceof Error) {
+        return error.message
+    }
+    return fallback
+}
 
 interface AuthState {
     user: User | null
@@ -74,10 +89,7 @@ export const useAuthStore = create<AuthState>()(
                     })
                 } catch (error) {
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Login failed',
+                        error: getAuthErrorMessage(error, 'Login failed'),
                         isLoading: false,
                     })
                     throw error
@@ -102,10 +114,7 @@ export const useAuthStore = create<AuthState>()(
                     })
                 } catch (error) {
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Registration failed',
+                        error: getAuthErrorMessage(error, 'Registration failed'),
                         isLoading: false,
                     })
                     throw error
@@ -126,10 +135,7 @@ export const useAuthStore = create<AuthState>()(
                     })
                 } catch (error) {
                     set({
-                        error:
-                            error instanceof Error
-                                ? error.message
-                                : 'Google login failed',
+                        error: getAuthErrorMessage(error, 'Google login failed'),
                         isLoading: false,
                     })
                     throw error

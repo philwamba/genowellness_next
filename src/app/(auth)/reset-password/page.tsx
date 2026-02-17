@@ -3,9 +3,10 @@
 import { useState, Suspense, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiLock, FiArrowLeft, FiCheckCircle } from 'react-icons/fi'
 import { authApi } from '@/lib/api/client'
-import { toast } from 'sonner' // Assuming sonner is used
+import { toast } from 'sonner'
 
 function ResetPasswordContent() {
     const searchParams = useSearchParams()
@@ -29,7 +30,7 @@ function ResetPasswordContent() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        
+
         if (!token || !email) {
             toast.error('Invalid reset link')
             return
@@ -61,18 +62,18 @@ function ResetPasswordContent() {
 
     if (isSuccess) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                 <div className="text-center">
+            <div className="min-h-screen flex items-center justify-center px-6 py-12">
+                <div className="w-full max-w-md text-center">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <FiCheckCircle className="w-10 h-10 text-green-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-2xl font-bold text-title mb-2">
                         Password Reset Successful
                     </h1>
-                     <p className="text-gray-500 mb-8">
+                    <p className="text-subtitle mb-8">
                         Your password has been reset. Redirecting to login...
                     </p>
-                     <Link
+                    <Link
                         href="/login"
                         onClick={() => {
                             if (successRedirectTimeoutRef.current) {
@@ -90,53 +91,63 @@ function ResetPasswordContent() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col px-6 py-12">
+        <div className="min-h-screen flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-md flex flex-col">
+            {/* Back to Login */}
             <Link
                 href="/login"
-                className="flex items-center gap-2 text-gray-600 mb-8">
-                <FiArrowLeft className="w-5 h-5" />
+                className="flex items-center gap-2 text-subtitle hover:text-title mb-6 self-start">
+                <FiArrowLeft className="w-4 h-4" />
                 Back to Login
             </Link>
 
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {/* Header */}
+            <div className="text-center mb-8">
+                <Image
+                    src="/logo.png"
+                    alt="GENO"
+                    width={80}
+                    height={80}
+                    className="mx-auto mb-4"
+                />
+                <h1 className="text-2xl font-bold text-title mb-2">
                     Reset Password
                 </h1>
-                <p className="text-gray-500">
+                <p className="text-subtitle">
                     Enter your new password below.
                 </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        New Password
+                    <label className="block text-sm font-medium text-title mb-1">
+                        New Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type="password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             placeholder="••••••••"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Confirm Password
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Confirm Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type="password"
                             value={passwordConfirmation}
                             onChange={e => setPasswordConfirmation(e.target.value)}
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             placeholder="••••••••"
                         />
                     </div>
@@ -149,6 +160,7 @@ function ResetPasswordContent() {
                     {isLoading ? 'Resetting...' : 'Reset Password'}
                 </button>
             </form>
+            </div>
         </div>
     )
 }

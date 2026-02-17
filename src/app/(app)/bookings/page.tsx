@@ -48,6 +48,7 @@ export default function BookingsPage() {
 
     const fetchBookings = useCallback(async () => {
         setIsLoading(true)
+        setError(null)
         try {
             const status =
                 activeTab === 'upcoming'
@@ -59,6 +60,7 @@ export default function BookingsPage() {
             setBookings(response.bookings as Booking[])
         } catch (error) {
             console.error('Failed to fetch bookings:', error)
+            setError(error instanceof Error ? error.message : 'Failed to fetch bookings')
             toast.error('Failed to fetch bookings')
         } finally {
             setIsLoading(false)

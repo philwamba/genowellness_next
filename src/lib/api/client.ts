@@ -1,6 +1,8 @@
 import type {
     Service,
+    Provider,
     ProviderProfile,
+    Article,
     Booking,
     TimeSlot,
     User,
@@ -100,14 +102,14 @@ class ApiClient {
         })
 
         if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}))
             if (response.status === 401) {
-                throw new AuthenticationError()
+                throw new AuthenticationError(errorData.message || 'Unauthenticated')
             }
-            const error = await response.json().catch(() => ({}))
             throw new ApiError(
-                error.message || 'An error occurred',
+                errorData.message || 'An error occurred',
                 response.status,
-                error.errors,
+                errorData.errors,
             )
         }
 
@@ -190,6 +192,7 @@ export const authApi = {
         ),
 
     firebaseAuth: (data: {
+        token: string
         firebase_uid: string
         email: string
         name?: string
