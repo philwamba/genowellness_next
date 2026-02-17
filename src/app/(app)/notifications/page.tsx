@@ -143,7 +143,7 @@ export default function NotificationsPage() {
                                             handleMarkAsRead(notification.id)
                                         }
                                     }}
-                                    className="flex gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-primary rounded-lg"
+                                    className="flex gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-primary rounded-lg">
                                     <div
                                         className={cn(
                                             'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',

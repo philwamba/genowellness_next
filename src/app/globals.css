@@ -32,6 +32,9 @@
   --color-inactive: #3A4750;
   --color-divider: #E5E7EB;
 
+  /* RGB variants for opacity support */
+  --color-primary-rgb: 253, 113, 3;
+
   /* Secondary colors */
   --color-secondary-50: #E6FFF6;
   --color-secondary-100: #BFFFE8;
@@ -54,11 +57,11 @@ body {
 
 /* Ensure inputs have proper text color */
 input, textarea, select {
-  color: #0F1724;
+  color: var(--color-title);
 }
 
 input::placeholder, textarea::placeholder {
-  color: #6B7280;
+  color: var(--color-subtitle);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -67,45 +70,45 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Brand color utilities - explicit overrides for Tailwind v4 compatibility */
 .bg-primary {
-  background-color: #FD7103;
+  background-color: var(--color-primary);
 }
 
 .text-primary {
-  color: #FD7103;
+  color: var(--color-primary);
 }
 
 .border-primary {
-  border-color: #FD7103;
+  border-color: var(--color-primary);
 }
 
 .ring-primary {
-  --tw-ring-color: #FD7103;
+  --tw-ring-color: var(--color-primary);
 }
 
 .focus\:ring-primary:focus {
-  --tw-ring-color: #FD7103;
+  --tw-ring-color: var(--color-primary);
 }
 
 .hover\:bg-primary\/90:hover {
-  background-color: rgba(253, 113, 3, 0.9);
+  background-color: rgba(var(--color-primary-rgb), 0.9);
 }
 
 .text-title {
-  color: #0F1724;
+  color: var(--color-title);
 }
 
 .text-subtitle {
-  color: #6B7280;
+  color: var(--color-subtitle);
 }
 
 .text-inactive {
-  color: #3A4750;
+  color: var(--color-inactive);
 }
 
 .border-divider {
-  border-color: #E5E7EB;
+  border-color: var(--color-divider);
 }
 
 .hover\:text-title:hover {
-  color: #0F1724;
+  color: var(--color-title);
 }

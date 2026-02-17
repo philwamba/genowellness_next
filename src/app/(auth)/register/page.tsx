@@ -134,6 +134,7 @@ export default function RegisterPage() {
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-inactive hover:text-title">
                             {showPassword ? (
                                 <FiEyeOff className="w-5 h-5" />
