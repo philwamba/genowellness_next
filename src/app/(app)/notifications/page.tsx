@@ -127,23 +127,22 @@ export default function NotificationsPage() {
                                         'ring-1 ring-primary/20',
                                 )}>
                                 <div
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() =>
-                                        !notification.read_at &&
-                                        handleMarkAsRead(notification.id)
-                                    }
-                                    onKeyDown={e => {
-                                        if (
-                                            !notification.read_at &&
-                                            (e.key === 'Enter' ||
-                                                e.key === ' ')
-                                        ) {
+                                    role={notification.read_at ? undefined : 'button'}
+                                    tabIndex={notification.read_at ? -1 : 0}
+                                    aria-disabled={notification.read_at ? true : undefined}
+                                    onClick={notification.read_at ? undefined : () => handleMarkAsRead(notification.id)}
+                                    onKeyDown={notification.read_at ? undefined : e => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
                                             e.preventDefault()
                                             handleMarkAsRead(notification.id)
                                         }
                                     }}
-                                    className="flex gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-primary rounded-lg">
+                                    className={cn(
+                                        'flex gap-3 outline-none rounded-lg',
+                                        notification.read_at
+                                            ? 'cursor-default'
+                                            : 'cursor-pointer focus:ring-2 focus:ring-primary',
+                                    )}>
                                     <div
                                         className={cn(
                                             'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',

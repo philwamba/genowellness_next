@@ -102,12 +102,19 @@ class ApiClient {
         })
 
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
+            const rawText = await response.text().catch(() => '')
+            let errorData: { message?: string; errors?: Record<string, string[]> } = {}
+            try {
+                errorData = rawText ? JSON.parse(rawText) : {}
+            } catch {
+                // Non-JSON response, use raw text as message
+            }
+            const errorMessage = errorData.message || rawText || 'An error occurred'
             if (response.status === 401) {
-                throw new AuthenticationError(errorData.message || 'Unauthenticated')
+                throw new AuthenticationError(errorMessage)
             }
             throw new ApiError(
-                errorData.message || 'An error occurred',
+                errorMessage,
                 response.status,
                 errorData.errors,
             )

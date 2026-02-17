@@ -5,14 +5,6 @@
   --foreground: #171717;
   --font-domine: var(--font-domine);
   --font-outfit: var(--font-outfit);
-
-  /* Brand colors accessible for utility classes */
-  --color-primary: #FD7103;
-  --color-primary-rgb: 253, 113, 3;
-  --color-title: #0F1724;
-  --color-subtitle: #6B7280;
-  --color-inactive: #3A4750;
-  --color-divider: #E5E7EB;
 }
 
 @theme inline {
@@ -34,14 +26,14 @@
   --color-primary-900: #7C2D12;
   --color-primary: #FD7103;
 
-  /* Text colors from Flutter */
+  /* WCAG AA compliant text color for primary (4.5:1 contrast on white) */
+  --color-primary-text: #C2410C;
+
+  /* Text colors */
   --color-title: #0F1724;
   --color-subtitle: #6B7280;
   --color-inactive: #3A4750;
   --color-divider: #E5E7EB;
-
-  /* RGB variants for opacity support */
-  --color-primary-rgb: 253, 113, 3;
 
   /* Secondary colors */
   --color-secondary-50: #E6FFF6;
@@ -58,7 +50,7 @@
 }
 
 body {
-  background: var(--background) !important;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-outfit);
 }
@@ -74,49 +66,4 @@ input::placeholder, textarea::placeholder {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-domine);
-}
-
-/* Brand color utilities - explicit overrides for Tailwind v4 compatibility */
-.bg-primary {
-  background-color: #FD7103 !important;
-}
-
-.text-primary {
-  color: #FD7103 !important;
-}
-
-.border-primary {
-  border-color: #FD7103 !important;
-}
-
-.ring-primary {
-  --tw-ring-color: #FD7103 !important;
-}
-
-.focus\:ring-primary:focus {
-  --tw-ring-color: #FD7103 !important;
-}
-
-.hover\:bg-primary\/90:hover {
-  background-color: rgba(253, 113, 3, 0.9) !important;
-}
-
-.text-title {
-  color: #0F1724 !important;
-}
-
-.text-subtitle {
-  color: #6B7280 !important;
-}
-
-.text-inactive {
-  color: #3A4750 !important;
-}
-
-.border-divider {
-  border-color: #E5E7EB !important;
-}
-
-.hover\:text-title:hover {
-  color: #0F1724 !important;
 }

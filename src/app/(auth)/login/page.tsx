@@ -58,6 +58,7 @@ export default function LoginPage() {
                     width={80}
                     height={80}
                     className="mx-auto mb-4"
+                    priority
                 />
                 <p className="text-subtitle">Welcome back</p>
             </div>
@@ -71,12 +72,13 @@ export default function LoginPage() {
                 )}
 
                 <div>
-                    <label className="block text-sm font-medium text-title mb-1">
+                    <label htmlFor="email" className="block text-sm font-medium text-title mb-1">
                         Email <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
+                            id="email"
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
@@ -88,12 +90,13 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-title mb-1">
+                    <label htmlFor="password" className="block text-sm font-medium text-title mb-1">
                         Password <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                         <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
+                            id="password"
                             type={showPassword ? 'text' : 'password'}
                             value={password}
                             onChange={e => setPassword(e.target.value)}
