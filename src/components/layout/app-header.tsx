@@ -55,13 +55,18 @@ export function AppHeader({ showGreeting = true, title, rightContent, showBack, 
                                 {title}
                             </h1>
                         ) : (
-                            <div className="w-24 h-8">
-                                <Link href="/home">
-                                    <span className="text-xl font-bold text-primary">
-                                        GENO
-                                    </span>
-                                </Link>
-                            </div>
+                            <Link href="/home" className="flex items-center gap-2">
+                                <Image
+                                    src="/logo.png"
+                                    alt="GENO"
+                                    width={36}
+                                    height={36}
+                                    className="rounded-lg"
+                                />
+                                <span className="text-xl font-bold text-primary">
+                                    GENO
+                                </span>
+                            </Link>
                         )}
                     </div>
 

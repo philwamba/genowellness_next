@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/stores/auth-store'
 import { useWellnessStore } from '@/lib/stores/wellness-store'
 import { contentApi, servicesApi } from '@/lib/api/client'
 import { Service, WellnessTip, Article } from '@/types'
-import { getMoodEmoji, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import {
     FiChevronRight,
     FiHeart,
@@ -95,14 +95,14 @@ export default function HomePage() {
 
     const fetchData = useCallback(async () => {
         try {
-            const [servicesData, tipData, articlesData] = await Promise.all([
-                servicesApi.getServices(),
-                contentApi.getWellnessTip().catch(() => null),
-                contentApi.getArticles().catch(() => []),
+            const [servicesResult, tipResult, articlesResult] = await Promise.all([
+                servicesApi.list(),
+                contentApi.getDailyTip().catch(() => ({ tip: null })),
+                contentApi.getArticles().catch(() => ({ articles: [] })),
             ])
-            setServices(servicesData)
-            setTip(tipData)
-            setArticles(articlesData.slice(0, 3))
+            setServices(servicesResult.services)
+            setTip(tipResult.tip as WellnessTip | null)
+            setArticles((articlesResult.articles as Article[]).slice(0, 3))
         } catch (error) {
             console.error('Failed to fetch home data:', error)
         } finally {
@@ -133,7 +133,7 @@ export default function HomePage() {
         <div className="min-h-screen bg-gray-50">
             <AppHeader />
 
-            <main className="px-4 py-6 space-y-6 pb-24">
+            <main className="container mx-auto px-4 py-6 space-y-6 pb-24 max-w-4xl">
                 {/* Greeting */}
                 <section>
                     <h1 className="text-2xl font-bold text-gray-900">
@@ -216,17 +216,17 @@ export default function HomePage() {
 
                 {/* Services */}
                 <section>
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="font-semibold text-gray-900">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
                             Our Services
                         </h2>
                         <Link
                             href="/services"
-                            className="text-primary text-sm flex items-center">
+                            className="text-primary text-sm font-medium flex items-center hover:underline">
                             See all <FiChevronRight className="ml-1" />
                         </Link>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {services.slice(0, 4).map(service => {
                             const imageSrc = serviceImages[service.slug] || service.image_path
 
@@ -234,8 +234,8 @@ export default function HomePage() {
                                 <Link
                                     key={service.id}
                                     href={`/services/${service.slug}`}
-                                    className="flex-shrink-0 w-36 bg-white rounded-xl overflow-hidden shadow-sm">
-                                    <div className="relative h-20 bg-gray-200">
+                                    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="relative h-28 sm:h-32 bg-gray-200">
                                         {imageSrc && (
                                             <Image
                                                 src={imageSrc}
@@ -246,10 +246,10 @@ export default function HomePage() {
                                         )}
                                     </div>
                                     <div className="p-3">
-                                        <p className="font-medium text-gray-900 text-sm">
+                                        <p className="font-medium text-gray-900 text-sm line-clamp-1">
                                             {service.title}
                                         </p>
-                                        <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                                             {service.subtitle}
                                         </p>
                                     </div>
