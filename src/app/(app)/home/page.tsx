@@ -68,108 +68,94 @@ const moods = [
     { id: 'tired', emoji: '😴' },
 ]
 
+// Map service slugs to local images
+const serviceImages: Record<string, string> = {
+    'counselling': '/images/services/counseling.jpg',
+    'coaching': '/images/services/coaching.jpg',
+    'training': '/images/services/exercise.jpg',
+    'mentorship': '/images/services/mentorship.jpg',
+    'consultation': '/images/services/consultation.jpg',
+    'other': '/images/services/diary.jpg',
+    'mental-wellness': '/images/services/mental_wellness.jpg',
+    'medical': '/images/services/medical.jpg',
+    'financial-wellness': '/images/services/finance.jpg',
+    'social-wellness': '/images/services/community.jpg',
+    'work-life': '/images/services/work.jpg',
+    'purpose': '/images/services/spiritual.jpg',
+}
+
 export default function HomePage() {
     const { user } = useAuthStore()
-    const { todayMood, logMood, fetchTodayMood, isMoodLoading } =
-        useWellnessStore()
-    const [dailyTip, setDailyTip] = useState<WellnessTip | null>(null)
+    const { todayMood, setTodayMood } = useWellnessStore()
     const [services, setServices] = useState<Service[]>([])
+    const [tip, setTip] = useState<WellnessTip | null>(null)
     const [articles, setArticles] = useState<Article[]>([])
+    const [selectedMood, setSelectedMood] = useState<string | null>(todayMood)
+    const [isLoading, setIsLoading] = useState(true)
 
-    const fetchDailyTip = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
-            const response = await contentApi.getDailyTip()
-            setDailyTip(response.tip as WellnessTip)
+            const [servicesData, tipData, articlesData] = await Promise.all([
+                servicesApi.getServices(),
+                contentApi.getWellnessTip().catch(() => null),
+                contentApi.getArticles().catch(() => []),
+            ])
+            setServices(servicesData)
+            setTip(tipData)
+            setArticles(articlesData.slice(0, 3))
         } catch (error) {
-            console.error('Failed to fetch daily tip:', error)
-            toast.error('Failed to fetch daily tip')
-        }
-    }, [])
-
-    const fetchServices = useCallback(async () => {
-        try {
-            const response = await servicesApi.list()
-            setServices(response.services as Service[])
-        } catch (error) {
-            console.error('Failed to fetch services:', error)
-            toast.error('Failed to fetch services')
-        }
-    }, [])
-
-    const fetchArticles = useCallback(async () => {
-        try {
-            const response = await contentApi.getFeaturedArticles()
-            setArticles((response.articles as Article[]).slice(0, 4))
-        } catch (error) {
-            console.error('Failed to fetch articles:', error)
-            toast.error('Failed to fetch articles')
+            console.error('Failed to fetch home data:', error)
+        } finally {
+            setIsLoading(false)
         }
     }, [])
 
     useEffect(() => {
-        fetchTodayMood()
-        fetchDailyTip()
-        fetchServices()
-        fetchArticles()
-    }, [fetchTodayMood, fetchDailyTip, fetchServices, fetchArticles])
+        fetchData()
+    }, [fetchData])
 
-    const handleMoodSelect = async (mood: string) => {
-        try {
-            const result = await logMood(mood)
-            if (result.points_earned > 0) {
-                toast.success(`You earned ${result.points_earned} points!`)
-            }
-        } catch (error) {
-            console.error('Failed to log mood:', error)
-            toast.error('Failed to log mood')
-        }
+    const handleMoodSelect = (moodId: string) => {
+        setSelectedMood(moodId)
+        setTodayMood(moodId)
+        toast.success('Mood logged successfully!')
     }
 
+    const greeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return 'Good morning'
+        if (hour < 17) return 'Good afternoon'
+        return 'Good evening'
+    }
+
+    const firstName = user?.name?.split(' ')[0] || 'there'
+
     return (
-        <div>
-            <AppHeader showGreeting />
+        <div className="min-h-screen bg-gray-50">
+            <AppHeader />
 
-            <main className="px-4 py-6 space-y-6">
-                {/* Daily Wellness Tip */}
-                {dailyTip && (
-                    <section className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl p-4">
-                        <p className="text-sm text-gray-600 mb-1">
-                            Daily Wellness Bite
-                        </p>
-                        <p className="text-gray-900 font-medium">
-                            {dailyTip.content}
-                        </p>
-                        {dailyTip.author && (
-                            <p className="text-xs text-gray-500 mt-2">
-                                — {dailyTip.author}
-                            </p>
-                        )}
-                    </section>
-                )}
+            <main className="px-4 py-6 space-y-6 pb-24">
+                {/* Greeting */}
+                <section>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        {greeting()}, {firstName}!
+                    </h1>
+                    <p className="text-gray-600 mt-1">
+                        How are you feeling today?
+                    </p>
+                </section>
 
-                {/* Mood Check-in */}
+                {/* Mood Tracker */}
                 <section className="bg-white rounded-2xl p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-semibold text-gray-900">
-                            How are you feeling?
-                        </h2>
-                        {todayMood && (
-                            <span className="text-2xl">
-                                {getMoodEmoji(todayMood.mood)}
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                         {moods.map(mood => (
                             <button
                                 key={mood.id}
                                 onClick={() => handleMoodSelect(mood.id)}
-                                disabled={isMoodLoading}
                                 className={cn(
                                     'w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all',
-                                    todayMood?.mood === mood.id
-                                        ? 'bg-primary/20 ring-2 ring-primary scale-110'
-                                        : 'bg-gray-100 hover:bg-gray-200',
+                                    selectedMood === mood.id
+                                        ? 'bg-primary/10 ring-2 ring-primary scale-110'
+                                        : 'hover:bg-gray-100'
                                 )}>
                                 {mood.emoji}
                             </button>
@@ -177,27 +163,49 @@ export default function HomePage() {
                     </div>
                 </section>
 
+                {/* Daily Wellness Tip */}
+                {tip && (
+                    <section className="bg-gradient-to-r from-primary to-orange-500 rounded-2xl p-4 text-white">
+                        <p className="text-sm font-medium opacity-90">
+                            Daily Tip
+                        </p>
+                        <p className="mt-2 font-semibold">{tip.content}</p>
+                        {tip.category && (
+                            <span className="inline-block mt-3 px-3 py-1 bg-white/20 rounded-full text-xs">
+                                {tip.category}
+                            </span>
+                        )}
+                    </section>
+                )}
+
                 {/* Wellness Categories */}
                 <section>
-                    <h2 className="font-semibold text-gray-900 mb-3">
-                        Explore Wellness
-                    </h2>
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-semibold text-gray-900">
+                            Explore Wellness
+                        </h2>
+                        <Link
+                            href="/services"
+                            className="text-primary text-sm flex items-center">
+                            See all <FiChevronRight className="ml-1" />
+                        </Link>
+                    </div>
                     <div className="grid grid-cols-3 gap-3">
                         {wellnessCategories.map(category => {
                             const Icon = category.icon
                             return (
                                 <Link
                                     key={category.id}
-                                    href={`/wellness?area=${category.id}`}
-                                    className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                                    href={`/wellness/${category.id}`}
+                                    className="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow">
                                     <div
                                         className={cn(
-                                            'w-10 h-10 rounded-lg flex items-center justify-center mb-2',
-                                            category.color,
+                                            'w-10 h-10 rounded-full mx-auto flex items-center justify-center mb-2',
+                                            category.color
                                         )}>
                                         <Icon className="w-5 h-5" />
                                     </div>
-                                    <p className="text-sm font-medium text-gray-900">
+                                    <p className="text-xs font-medium text-gray-700">
                                         {category.label}
                                     </p>
                                 </Link>
@@ -214,36 +222,40 @@ export default function HomePage() {
                         </h2>
                         <Link
                             href="/services"
-                            className="text-primary text-sm font-medium flex items-center">
-                            See all <FiChevronRight className="w-4 h-4" />
+                            className="text-primary text-sm flex items-center">
+                            See all <FiChevronRight className="ml-1" />
                         </Link>
                     </div>
-                    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
-                        {services.slice(0, 4).map(service => (
-                            <Link
-                                key={service.id}
-                                href={`/services/${service.slug}`}
-                                className="flex-shrink-0 w-36 bg-white rounded-xl overflow-hidden shadow-sm">
-                                <div className="relative h-20 bg-gray-200">
-                                    {service.image_path && (
-                                        <Image
-                                            src={service.image_path}
-                                            alt={service.title}
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    )}
-                                </div>
-                                <div className="p-3">
-                                    <p className="font-medium text-gray-900 text-sm">
-                                        {service.title}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                                        {service.subtitle}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
+                    <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+                        {services.slice(0, 4).map(service => {
+                            const imageSrc = serviceImages[service.slug] || service.image_path
+
+                            return (
+                                <Link
+                                    key={service.id}
+                                    href={`/services/${service.slug}`}
+                                    className="flex-shrink-0 w-36 bg-white rounded-xl overflow-hidden shadow-sm">
+                                    <div className="relative h-20 bg-gray-200">
+                                        {imageSrc && (
+                                            <Image
+                                                src={imageSrc}
+                                                alt={service.title}
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="p-3">
+                                        <p className="font-medium text-gray-900 text-sm">
+                                            {service.title}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                            {service.subtitle}
+                                        </p>
+                                    </div>
+                                </Link>
+                            )
+                        })}
                     </div>
                 </section>
 
