@@ -1,27 +1,47 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { AppHeader } from '@/components/layout/app-header'
 import {
     FiUser,
     FiBell,
     FiShield,
-    FiTrash2
+    FiTrash2,
+    FiLoader,
 } from 'react-icons/fi'
 import { authApi } from '@/lib/api/client'
 import { toast } from 'sonner'
 import { useAuth } from '@/lib/hooks/use-auth'
 import { cn } from '@/lib/utils'
 
+interface NotificationSettings {
+    push_notifications: boolean
+    email_notifications: boolean
+    session_reminders: boolean
+    booking_reminders: boolean
+    wellness_reminders: boolean
+    marketing_emails: boolean
+}
+
 export default function SettingsPage() {
     const { user, mutate } = useAuth()
     const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'notifications'>('profile')
     const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingSettings, setIsLoadingSettings] = useState(true)
 
-    // Profile state
     // Profile state
     const [name, setName] = useState(user?.name || '')
     const [phone, setPhone] = useState(user?.phone_number || '')
+
+    // Notification settings state
+    const [notifications, setNotifications] = useState<NotificationSettings>({
+        push_notifications: true,
+        email_notifications: true,
+        session_reminders: true,
+        booking_reminders: true,
+        wellness_reminders: true,
+        marketing_emails: false,
+    })
 
     // Sync state with user data
     useEffect(() => {
@@ -30,6 +50,30 @@ export default function SettingsPage() {
             setPhone(user.phone_number || '')
         }
     }, [user])
+
+    // Fetch notification settings
+    const fetchSettings = useCallback(async () => {
+        try {
+            const response = await authApi.getSettings()
+            const settings = response.settings
+            setNotifications({
+                push_notifications: settings.push_notifications,
+                email_notifications: settings.email_notifications,
+                session_reminders: settings.session_reminders,
+                booking_reminders: settings.booking_reminders,
+                wellness_reminders: settings.wellness_reminders,
+                marketing_emails: settings.marketing_emails,
+            })
+        } catch (error) {
+            console.error('Failed to fetch settings:', error)
+        } finally {
+            setIsLoadingSettings(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        fetchSettings()
+    }, [fetchSettings])
 
     // Password state
     const [currentPassword, setCurrentPassword] = useState('')
@@ -56,6 +100,10 @@ export default function SettingsPage() {
             toast.error('Passwords do not match')
             return
         }
+        if (newPassword.length < 8) {
+            toast.error('Password must be at least 8 characters')
+            return
+        }
         setIsLoading(true)
         try {
             await authApi.changePassword({
@@ -74,12 +122,31 @@ export default function SettingsPage() {
         }
     }
 
-     const handleDeleteAccount = async () => {
+    const handleToggleNotification = async (key: keyof NotificationSettings) => {
+        const newValue = !notifications[key]
+
+        // Optimistically update UI
+        setNotifications(prev => ({
+            ...prev,
+            [key]: newValue,
+        }))
+
+        try {
+            await authApi.updateSettings({ [key]: newValue })
+        } catch (error: any) {
+            // Revert on error
+            setNotifications(prev => ({
+                ...prev,
+                [key]: !newValue,
+            }))
+            toast.error('Failed to update setting')
+        }
+    }
+
+    const handleDeleteAccount = async () => {
         if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) return
-        
-        // TODO: Implement when backend endpoint is available
-        // await authApi.deleteAccount()
-        toast.error('Account deletion not yet implemented on backend')
+
+        toast.error('Account deletion not yet available. Please contact support.')
     }
 
     const tabs = [
@@ -87,6 +154,32 @@ export default function SettingsPage() {
         { id: 'security', label: 'Security & Privacy', icon: FiShield },
         { id: 'notifications', label: 'Notifications', icon: FiBell },
     ] as const
+
+    const NotificationToggle = ({
+        label,
+        description,
+        settingKey
+    }: {
+        label: string
+        description: string
+        settingKey: keyof NotificationSettings
+    }) => (
+        <div className="flex items-center justify-between py-2">
+            <div>
+                <h4 className="font-medium text-gray-900">{label}</h4>
+                <p className="text-sm text-gray-500">{description}</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    checked={notifications[settingKey]}
+                    onChange={() => handleToggleNotification(settingKey)}
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+        </div>
+    )
 
     return (
         <div className="bg-gray-50 min-h-screen pb-20">
@@ -182,8 +275,10 @@ export default function SettingsPage() {
                                         value={newPassword}
                                         onChange={e => setNewPassword(e.target.value)}
                                         required
+                                        minLength={8}
                                         className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -222,38 +317,44 @@ export default function SettingsPage() {
 
                     {activeTab === 'notifications' && (
                         <div className="space-y-6">
-                            <div className="flex items-center justify-between py-2">
-                                <div>
-                                    <h4 className="font-medium text-gray-900">Push Notifications</h4>
-                                    <p className="text-sm text-gray-500">Receive alerts on your device</p>
+                            {isLoadingSettings ? (
+                                <div className="flex justify-center py-8">
+                                    <FiLoader className="w-6 h-6 animate-spin text-primary" />
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    {/* TODO: Add persistence for notification settings */}
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-                            
-                            <div className="flex items-center justify-between py-2">
-                                <div>
-                                    <h4 className="font-medium text-gray-900">Email Notifications</h4>
-                                    <p className="text-sm text-gray-500">Receive updates via email</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-                             <div className="flex items-center justify-between py-2">
-                                <div>
-                                    <h4 className="font-medium text-gray-900">Session Reminders</h4>
-                                    <p className="text-sm text-gray-500">Get notified before sessions start</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" defaultChecked />
-                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
+                            ) : (
+                                <>
+                                    <NotificationToggle
+                                        label="Push Notifications"
+                                        description="Receive alerts on your device"
+                                        settingKey="push_notifications"
+                                    />
+                                    <NotificationToggle
+                                        label="Email Notifications"
+                                        description="Receive updates via email"
+                                        settingKey="email_notifications"
+                                    />
+                                    <NotificationToggle
+                                        label="Session Reminders"
+                                        description="Get notified before sessions start"
+                                        settingKey="session_reminders"
+                                    />
+                                    <NotificationToggle
+                                        label="Booking Reminders"
+                                        description="Get notified about booking updates"
+                                        settingKey="booking_reminders"
+                                    />
+                                    <NotificationToggle
+                                        label="Wellness Reminders"
+                                        description="Daily wellness tips and reminders"
+                                        settingKey="wellness_reminders"
+                                    />
+                                    <NotificationToggle
+                                        label="Marketing Emails"
+                                        description="Receive news and special offers"
+                                        settingKey="marketing_emails"
+                                    />
+                                </>
+                            )}
                         </div>
                     )}
                 </div>
