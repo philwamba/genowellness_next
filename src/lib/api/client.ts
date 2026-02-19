@@ -266,8 +266,8 @@ export const authApi = {
         marketing_emails?: boolean
         timezone?: string
         language?: string
-        wellness_focus?: string
-        preferences?: Record<string, unknown>
+        wellness_focus?: string | null
+        preferences?: Record<string, unknown> | null
     }) => api.put<{ message: string; settings: unknown }>('/auth/settings', data),
 }
 
@@ -385,17 +385,17 @@ export const bookingsApi = {
         ),
 }
 
-// Sessions API
+// Sessions API - Backend returns paginated responses with 'data' property
 export const sessionsApi = {
     list: (params?: { per_page?: number; page?: number }) =>
-        api.get<{ sessions: unknown[]; meta: unknown }>('/sessions', params),
+        api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>('/sessions', params),
 
-    global: () => api.get<{ sessions: unknown[] }>('/sessions/global'),
+    global: () => api.get<{ data?: unknown[]; sessions?: unknown[]; message?: string }>('/sessions/global'),
 
-    upcoming: () => api.get<{ sessions: unknown[] }>('/sessions/upcoming'),
+    upcoming: () => api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>('/sessions/upcoming'),
 
     past: (params?: { per_page?: number; page?: number }) =>
-        api.get<{ sessions: unknown[]; meta: unknown }>(
+        api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>(
             '/sessions/past',
             params,
         ),
