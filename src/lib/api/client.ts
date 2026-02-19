@@ -266,8 +266,8 @@ export const authApi = {
         marketing_emails?: boolean
         timezone?: string
         language?: string
-        wellness_focus?: string
-        preferences?: Record<string, unknown>
+        wellness_focus?: string | null
+        preferences?: Record<string, unknown> | null
     }) => api.put<{ message: string; settings: unknown }>('/auth/settings', data),
 }
 
