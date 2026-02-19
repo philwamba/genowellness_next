@@ -236,6 +236,39 @@ export const authApi = {
         password: string
         password_confirmation: string
     }) => api.post<{ message: string }>('/auth/change-password', data),
+
+    getSettings: () =>
+        api.get<{
+            settings: {
+                notifications_enabled: boolean
+                email_notifications: boolean
+                sms_notifications: boolean
+                push_notifications: boolean
+                booking_reminders: boolean
+                session_reminders: boolean
+                wellness_reminders: boolean
+                marketing_emails: boolean
+                timezone: string
+                language: string
+                wellness_focus: string | null
+                preferences: Record<string, unknown> | null
+            }
+        }>('/auth/settings'),
+
+    updateSettings: (data: {
+        notifications_enabled?: boolean
+        email_notifications?: boolean
+        sms_notifications?: boolean
+        push_notifications?: boolean
+        booking_reminders?: boolean
+        session_reminders?: boolean
+        wellness_reminders?: boolean
+        marketing_emails?: boolean
+        timezone?: string
+        language?: string
+        wellness_focus?: string
+        preferences?: Record<string, unknown>
+    }) => api.put<{ message: string; settings: unknown }>('/auth/settings', data),
 }
 
 // Services API
