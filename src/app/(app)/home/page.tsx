@@ -71,14 +71,13 @@ const moods = [
 // Map service slugs to local images
 const serviceImages: Record<string, string> = {
     counselling: '/images/services/counseling.jpg',
-    counseling: '/images/services/counseling.jpg',
     coaching: '/images/services/coaching.jpg',
     training: '/images/services/exercise.jpg',
     mentorship: '/images/services/mentorship.jpg',
     consultation: '/images/services/consultation.jpg',
     other: '/images/services/diary.jpg',
-    'mental-wellness': '/images/services/mental_wellness.jpg',
-    medical: '/images/services/medical.jpg',
+    'mental-wellness': '/images/services/practice.jpg',
+    medical: '/images/services/exercise.jpg',
     'financial-wellness': '/images/services/finance.jpg',
     'social-wellness': '/images/services/community.jpg',
     'work-life': '/images/services/work.jpg',

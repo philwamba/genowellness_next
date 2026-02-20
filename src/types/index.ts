@@ -315,7 +315,7 @@ export interface NotificationData {
     message?: string
     body?: string
     title?: string
-    [key: string]: string | number | boolean | null | undefined
+    type?: string
 }
 
 export interface Notification {
