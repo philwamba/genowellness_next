@@ -78,9 +78,7 @@ export function NotificationCenter() {
                                                             ? 'font-medium text-gray-900'
                                                             : 'text-gray-600'
                                                     )}>
-                                                    {typeof notification.data === 'object' && notification.data !== null
-                                                        ? ((notification.data as any).message || (notification.data as any).body || 'New Notification')
-                                                        : 'New Notification'}
+                                                    {notification.data?.message || notification.data?.body || 'New Notification'}
                                                 </div>
                                                 <div className="ml-2 flex flex-col items-end space-y-1">
                                                      <p className="text-xs text-gray-400 whitespace-nowrap">
