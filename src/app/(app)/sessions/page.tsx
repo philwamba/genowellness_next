@@ -26,13 +26,25 @@ export default function SessionsPage() {
         try {
             if (activeTab === 'upcoming') {
                 const response = await sessionsApi.upcoming()
-                setUpcomingSessions(response.sessions as Session[])
+                // Handle both { sessions: [] } and paginated { data: [] } formats
+                const sessions = (response as { sessions?: unknown[]; data?: unknown[] }).sessions
+                    ?? (response as { data?: unknown[] }).data
+                    ?? []
+                setUpcomingSessions(sessions as Session[])
             } else if (activeTab === 'explore') {
                 const response = await sessionsApi.global()
-                setGlobalSessions(response.sessions as Session[])
+                // Handle both { sessions: [] } and paginated { data: [] } formats
+                const sessions = (response as { sessions?: unknown[]; data?: unknown[] }).sessions
+                    ?? (response as { data?: unknown[] }).data
+                    ?? []
+                setGlobalSessions(sessions as Session[])
             } else {
                 const response = await sessionsApi.past()
-                setPastSessions(response.sessions as Session[])
+                // Handle both { sessions: [] } and paginated { data: [] } formats
+                const sessions = (response as { sessions?: unknown[]; data?: unknown[] }).sessions
+                    ?? (response as { data?: unknown[] }).data
+                    ?? []
+                setPastSessions(sessions as Session[])
             }
         } catch (error) {
             console.error('Failed to fetch sessions:', error)

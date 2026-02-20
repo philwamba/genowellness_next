@@ -102,14 +102,21 @@ class ApiClient {
         })
 
         if (!response.ok) {
-            if (response.status === 401) {
-                throw new AuthenticationError()
+            const rawText = await response.text().catch(() => '')
+            let errorData: { message?: string; errors?: Record<string, string[]> } = {}
+            try {
+                errorData = rawText ? JSON.parse(rawText) : {}
+            } catch {
+                // Non-JSON response, use raw text as message
             }
-            const error = await response.json().catch(() => ({}))
+            const errorMessage = errorData.message || rawText || 'An error occurred'
+            if (response.status === 401) {
+                throw new AuthenticationError(errorMessage)
+            }
             throw new ApiError(
-                error.message || 'An error occurred',
+                errorMessage,
                 response.status,
-                error.errors,
+                errorData.errors,
             )
         }
 
@@ -192,6 +199,7 @@ export const authApi = {
         ),
 
     firebaseAuth: (data: {
+        token: string
         firebase_uid: string
         email: string
         name?: string
@@ -228,6 +236,39 @@ export const authApi = {
         password: string
         password_confirmation: string
     }) => api.post<{ message: string }>('/auth/change-password', data),
+
+    getSettings: () =>
+        api.get<{
+            settings: {
+                notifications_enabled: boolean
+                email_notifications: boolean
+                sms_notifications: boolean
+                push_notifications: boolean
+                booking_reminders: boolean
+                session_reminders: boolean
+                wellness_reminders: boolean
+                marketing_emails: boolean
+                timezone: string
+                language: string
+                wellness_focus: string | null
+                preferences: Record<string, unknown> | null
+            }
+        }>('/auth/settings'),
+
+    updateSettings: (data: {
+        notifications_enabled?: boolean
+        email_notifications?: boolean
+        sms_notifications?: boolean
+        push_notifications?: boolean
+        booking_reminders?: boolean
+        session_reminders?: boolean
+        wellness_reminders?: boolean
+        marketing_emails?: boolean
+        timezone?: string
+        language?: string
+        wellness_focus?: string | null
+        preferences?: Record<string, unknown> | null
+    }) => api.put<{ message: string; settings: unknown }>('/auth/settings', data),
 }
 
 // Services API
@@ -344,17 +385,17 @@ export const bookingsApi = {
         ),
 }
 
-// Sessions API
+// Sessions API - Backend returns paginated responses with 'data' property
 export const sessionsApi = {
     list: (params?: { per_page?: number; page?: number }) =>
-        api.get<{ sessions: unknown[]; meta: unknown }>('/sessions', params),
+        api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>('/sessions', params),
 
-    global: () => api.get<{ sessions: unknown[] }>('/sessions/global'),
+    global: () => api.get<{ data?: unknown[]; sessions?: unknown[]; message?: string }>('/sessions/global'),
 
-    upcoming: () => api.get<{ sessions: unknown[] }>('/sessions/upcoming'),
+    upcoming: () => api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>('/sessions/upcoming'),
 
     past: (params?: { per_page?: number; page?: number }) =>
-        api.get<{ sessions: unknown[]; meta: unknown }>(
+        api.get<{ data: unknown[]; meta?: unknown; sessions?: unknown[] }>(
             '/sessions/past',
             params,
         ),

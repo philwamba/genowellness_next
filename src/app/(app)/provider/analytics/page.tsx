@@ -20,7 +20,7 @@ import { FiDollarSign, FiCalendar, FiUsers, FiTrendingUp } from 'react-icons/fi'
 
 
 
-import { AnalyticsOverview, ChartDataItem } from '@/types'
+import { ChartDataItem } from '@/types'
 
 import { useAuthStore } from '@/lib/stores/auth-store'
 

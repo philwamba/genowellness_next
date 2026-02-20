@@ -5,7 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { toast } from 'sonner'
 import { AppHeader } from '@/components/layout/app-header'
-import { servicesApi, providersApi, contentApi, searchApi } from '@/lib/api/client'
+import { searchApi } from '@/lib/api/client'
 import { Service, Provider, Article } from '@/types'
 import { formatCurrency, cn, getInitials } from '@/lib/utils'
 import { FiSearch, FiStar, FiChevronRight, FiX, FiClock } from 'react-icons/fi'
@@ -31,13 +31,6 @@ export default function SearchPage() {
     const [hasSearched, setHasSearched] = useState(false)
 
     const [lastQuery, setLastQuery] = useState('')
-
-    // Re-search when category changes (if user has already searched)
-    useEffect(() => {
-        if (hasSearched && lastQuery) {
-            performSearch(lastQuery)
-        }
-    }, [category]) // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         // Load recent searches from localStorage
@@ -68,9 +61,10 @@ export default function SearchPage() {
         localStorage.removeItem('recent_searches')
     }
 
-    const performSearch = useCallback(async (searchQuery: string) => {
+    const performSearch = useCallback(async (searchQuery: string, searchCategory?: SearchCategory) => {
         if (!searchQuery.trim()) return
 
+        const effectiveCategory = searchCategory ?? category
         setIsSearching(true)
         setHasSearched(true)
         setLastQuery(searchQuery.trim())
@@ -79,7 +73,7 @@ export default function SearchPage() {
         try {
             const { services, providers, articles } = await searchApi.query({
                 query: searchQuery.trim(),
-                category: category === 'all' ? undefined : category,
+                category: effectiveCategory === 'all' ? undefined : effectiveCategory,
                 limit: 20
             })
 
@@ -162,7 +156,12 @@ export default function SearchPage() {
                         {categories.map((cat) => (
                             <button
                                 key={cat.id}
-                                onClick={() => setCategory(cat.id)}
+                                onClick={() => {
+                                    setCategory(cat.id)
+                                    if (hasSearched && lastQuery) {
+                                        performSearch(lastQuery, cat.id)
+                                    }
+                                }}
                                 className={cn(
                                     'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors',
                                     category === cat.id

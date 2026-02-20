@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { FiMail, FiArrowLeft, FiCheckCircle } from 'react-icons/fi'
 
 import { authApi, ApiError } from '@/lib/api/client'
@@ -36,18 +37,18 @@ export default function ForgotPasswordPage() {
 
     if (isSubmitted) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
-                <div className="text-center">
+            <div className="min-h-screen flex items-center justify-center px-6 py-12">
+                <div className="w-full max-w-md text-center">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <FiCheckCircle className="w-10 h-10 text-green-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h1 className="text-2xl font-bold text-title mb-2">
                         Check your email
                     </h1>
-                    <p className="text-gray-500 mb-8">
+                    <p className="text-subtitle mb-8">
                         We've sent a password reset link to
                         <br />
-                        <span className="font-medium text-gray-700">
+                        <span className="font-medium text-title">
                             {email}
                         </span>
                     </p>
@@ -63,21 +64,29 @@ export default function ForgotPasswordPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col px-6 py-12">
-            {/* Back Link */}
+        <div className="min-h-screen flex items-center justify-center px-6 py-12">
+            <div className="w-full max-w-md flex flex-col">
+            {/* Back to Login */}
             <Link
                 href="/login"
-                className="flex items-center gap-2 text-gray-600 mb-8">
-                <FiArrowLeft className="w-5 h-5" />
-                Back
+                className="flex items-center gap-2 text-subtitle hover:text-title mb-6 self-start">
+                <FiArrowLeft className="w-4 h-4" />
+                Back to Login
             </Link>
 
             {/* Header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="text-center mb-8">
+                <Image
+                    src="/logo.png"
+                    alt="GENO"
+                    width={80}
+                    height={80}
+                    className="mx-auto mb-4"
+                />
+                <h1 className="text-2xl font-bold text-title mb-2">
                     Forgot Password
                 </h1>
-                <p className="text-gray-500">
+                <p className="text-subtitle">
                     Enter your email address and we'll send you a link to reset
                     your password.
                 </p>
@@ -92,18 +101,18 @@ export default function ForgotPasswordPage() {
                 )}
 
                 <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email
+                    <label className="block text-sm font-medium text-title mb-1">
+                        Email <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
-                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-inactive" />
                         <input
                             type="email"
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             placeholder="Enter your email"
                             required
-                            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            className="w-full pl-10 pr-4 py-3 border border-divider rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                         />
                     </div>
                 </div>
@@ -118,12 +127,13 @@ export default function ForgotPasswordPage() {
 
             {/* Footer */}
             <div className="text-center mt-8">
-                <p className="text-gray-500">
+                <p className="text-subtitle">
                     Remember your password?{' '}
                     <Link href="/login" className="text-primary font-medium">
                         Sign In
                     </Link>
                 </p>
+            </div>
             </div>
         </div>
     )

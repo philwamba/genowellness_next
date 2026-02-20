@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { PageHeader } from '@/components/layout/page-header'
 import { useAuthStore } from '@/lib/stores/auth-store'
@@ -13,7 +12,6 @@ import {
     FiDollarSign,
     FiStar,
     FiUser,
-    FiPieChart,
     FiSettings,
     FiTrendingUp,
 } from 'react-icons/fi'
@@ -21,7 +19,6 @@ import {
 import { ProviderDashboardStats, Session } from '@/types'
 
 export default function ProviderDashboardPage() {
-    const router = useRouter()
     const { user } = useAuthStore()
     const profile = user?.provider_profile
     const [stats, setStats] = useState<ProviderDashboardStats | null>(null)

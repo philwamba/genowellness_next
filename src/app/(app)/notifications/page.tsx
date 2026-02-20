@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { AppHeader } from '@/components/layout/app-header'
 import { cn } from '@/lib/utils'
 import { useNotifications } from '@/lib/hooks/use-notifications'
@@ -25,8 +24,7 @@ export default function NotificationsPage() {
     const handleMarkAsRead = async (id: number) => {
         try {
             await markAsRead(id)
-        } catch (error) {
-            console.error('Failed to mark as read', error)
+        } catch {
             toast.error('Failed to mark notification as read')
         }
     }
@@ -35,7 +33,7 @@ export default function NotificationsPage() {
         try {
             await markAllAsRead()
             toast.success('All notifications marked as read')
-        } catch (error) {
+        } catch {
             toast.error('Failed to mark all as read')
         }
     }
@@ -44,7 +42,7 @@ export default function NotificationsPage() {
         try {
             await remove(id)
             toast.success('Notification removed')
-        } catch (error) {
+        } catch {
             toast.error('Failed to remove notification')
         }
     }
@@ -127,23 +125,22 @@ export default function NotificationsPage() {
                                         'ring-1 ring-primary/20',
                                 )}>
                                 <div
-                                    role="button"
-                                    tabIndex={0}
-                                    onClick={() =>
-                                        !notification.read_at &&
-                                        handleMarkAsRead(notification.id)
-                                    }
-                                    onKeyDown={e => {
-                                        if (
-                                            !notification.read_at &&
-                                            (e.key === 'Enter' ||
-                                                e.key === ' ')
-                                        ) {
+                                    role={notification.read_at ? undefined : 'button'}
+                                    tabIndex={notification.read_at ? -1 : 0}
+                                    aria-disabled={notification.read_at ? true : undefined}
+                                    onClick={notification.read_at ? undefined : () => handleMarkAsRead(notification.id)}
+                                    onKeyDown={notification.read_at ? undefined : e => {
+                                        if (e.key === 'Enter' || e.key === ' ') {
                                             e.preventDefault()
                                             handleMarkAsRead(notification.id)
                                         }
                                     }}
-                                    className="flex gap-3 cursor-pointer outline-none focus:ring-2 focus:ring-primary rounded-lg"
+                                    className={cn(
+                                        'flex gap-3 outline-none rounded-lg',
+                                        notification.read_at
+                                            ? 'cursor-default'
+                                            : 'cursor-pointer focus:ring-2 focus:ring-primary',
+                                    )}>
                                     <div
                                         className={cn(
                                             'w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0',

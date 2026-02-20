@@ -13,44 +13,81 @@
   --font-domine: var(--font-domine);
   --font-outfit: var(--font-outfit);
 
-  /* Primary brand colors */
-  --color-primary-50: #EDEEFF;
-  --color-primary-100: #D9DBFE;
-  --color-primary-200: #B3B6FD;
-  --color-primary-300: #8D91FC;
-  --color-primary-400: #676CFB;
-  --color-primary-500: #6366F1;
-  --color-primary-600: #3B3FE8;
-  --color-primary-700: #2124C5;
-  --color-primary-800: #181A93;
-  --color-primary-900: #0F1161;
-  --color-primary: #6366F1;
+  /* Primary brand colors - Orange #FD7103 */
+  --color-primary-50: #FFF7ED;
+  --color-primary-100: #FFEDD5;
+  --color-primary-200: #FED7AA;
+  --color-primary-300: #FDBA74;
+  --color-primary-400: #FB923C;
+  --color-primary-500: #FD7103;
+  --color-primary-600: #EA580C;
+  --color-primary-700: #C2410C;
+  --color-primary-800: #9A3412;
+  --color-primary-900: #7C2D12;
+  --color-primary: #FD7103;
 
-  /* Secondary colors */
-  --color-secondary-50: #E6FFF6;
-  --color-secondary-100: #BFFFE8;
-  --color-secondary-200: #80FFD4;
-  --color-secondary-300: #40FFBF;
-  --color-secondary-400: #00FFAB;
-  --color-secondary-500: #10B981;
-  --color-secondary-600: #0D9668;
-  --color-secondary-700: #0A7350;
-  --color-secondary-800: #075037;
-  --color-secondary-900: #042D1F;
-  --color-secondary: #10B981;
-}
+  /* Override Tailwind green colors with orange tones */
+  --color-green-50: #FFF7ED;
+  --color-green-100: #FFEDD5;
+  --color-green-200: #FED7AA;
+  --color-green-300: #FDBA74;
+  --color-green-400: #FB923C;
+  --color-green-500: #FD7103;
+  --color-green-600: #EA580C;
+  --color-green-700: #C2410C;
+  --color-green-800: #9A3412;
+  --color-green-900: #7C2D12;
+  --color-green-950: #431407;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Override emerald colors with orange tones as well */
+  --color-emerald-50: #FFF7ED;
+  --color-emerald-100: #FFEDD5;
+  --color-emerald-200: #FED7AA;
+  --color-emerald-300: #FDBA74;
+  --color-emerald-400: #FB923C;
+  --color-emerald-500: #FD7103;
+  --color-emerald-600: #EA580C;
+  --color-emerald-700: #C2410C;
+  --color-emerald-800: #9A3412;
+  --color-emerald-900: #7C2D12;
+  --color-emerald-950: #431407;
+
+  /* WCAG AA compliant text color for primary (4.5:1 contrast on white) */
+  --color-primary-text: #C2410C;
+
+  /* Text colors */
+  --color-title: #0F1724;
+  --color-subtitle: #6B7280;
+  --color-inactive: #3A4750;
+  --color-divider: #E5E7EB;
+
+  /* Secondary colors - Now using orange tones to match primary */
+  --color-secondary-50: #FFF7ED;
+  --color-secondary-100: #FFEDD5;
+  --color-secondary-200: #FED7AA;
+  --color-secondary-300: #FDBA74;
+  --color-secondary-400: #FB923C;
+  --color-secondary-500: #FD7103;
+  --color-secondary-600: #EA580C;
+  --color-secondary-700: #C2410C;
+  --color-secondary-800: #9A3412;
+  --color-secondary-900: #7C2D12;
+  --color-secondary: #FD7103;
 }
 
 body {
-  background: var(--background) !important;
+  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-outfit);
+}
+
+/* Ensure inputs have proper text color */
+input, textarea, select {
+  color: var(--color-title);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-subtitle);
 }
 
 h1, h2, h3, h4, h5, h6 {

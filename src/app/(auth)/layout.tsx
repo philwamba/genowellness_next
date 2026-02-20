@@ -10,7 +10,12 @@ export default function AuthLayout({
     children: React.ReactNode
 }) {
     const router = useRouter()
-    const { isAuthenticated, isLoading } = useAuthStore()
+    const { isAuthenticated, isLoading, initializeAuth } = useAuthStore()
+
+    useEffect(() => {
+        const unsubscribe = initializeAuth()
+        return () => unsubscribe?.()
+    }, [initializeAuth])
 
     useEffect(() => {
         if (!isLoading && isAuthenticated) {
@@ -20,7 +25,7 @@ export default function AuthLayout({
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-white">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
         )
