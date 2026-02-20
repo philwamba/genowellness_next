@@ -159,7 +159,7 @@ export const MOOD_EMOJIS: Record<MoodTypeValue, string> = {
 
 // Goal category colors for UI
 export const GOAL_CATEGORY_COLORS: Record<GoalCategoryValue, string> = {
-    physical: 'bg-green-500',
+    physical: 'bg-teal-500',
     mental: 'bg-purple-500',
     financial: 'bg-yellow-500',
     social: 'bg-blue-500',

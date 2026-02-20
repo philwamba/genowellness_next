@@ -31,7 +31,7 @@ const wellnessCategories = [
         id: 'physical',
         label: 'Physical',
         icon: FiActivity,
-        color: 'bg-green-100 text-green-600',
+        color: 'bg-teal-100 text-teal-600',
     },
     {
         id: 'financial',

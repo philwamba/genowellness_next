@@ -89,9 +89,9 @@ function PointHistoryItem({ point }: { point: WellnessPoint }) {
                     </p>
                 </div>
             </div>
-            <div className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-1">
-                <FiPlus className="h-3 w-3 text-green-600" />
-                <span className="text-sm font-bold text-green-600">
+            <div className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-1">
+                <FiPlus className="h-3 w-3 text-primary" />
+                <span className="text-sm font-bold text-primary">
                     {point.points}
                 </span>
             </div>

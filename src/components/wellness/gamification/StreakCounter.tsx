@@ -110,7 +110,7 @@ export function StreakCounter({
                                 'flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium',
                                 isOnFire
                                     ? 'bg-white/20 text-white'
-                                    : 'bg-green-100 text-green-700',
+                                    : 'bg-primary/10 text-primary',
                             )}
                         >
                             <FiAward className="h-3 w-3" />
@@ -164,7 +164,7 @@ export function StreakCounter({
                         day{current_streak !== 1 ? 's' : ''}
                     </span>
                     {isNewRecord && current_streak > 1 && (
-                        <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                             Best!
                         </span>
                     )}
