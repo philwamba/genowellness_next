@@ -45,7 +45,7 @@ const wellnessDimensions = [
         id: 'physical',
         label: 'Physical',
         icon: FiActivity,
-        color: 'text-green-500',
+        color: 'text-teal-500',
     },
     {
         id: 'financial',

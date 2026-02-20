@@ -26,6 +26,7 @@ export default function LoginPage() {
             router.push('/home')
         } catch (error) {
             console.error('Login failed:', error)
+            setPassword('') // Clear only password on error
         }
     }
 
