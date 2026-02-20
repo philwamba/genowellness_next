@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/stores/auth-store'
 import { useWellnessStore } from '@/lib/stores/wellness-store'
 import { contentApi, servicesApi } from '@/lib/api/client'
 import { Service, WellnessTip, Article } from '@/types'
-import { cn } from '@/lib/utils'
+import { cn, getGreeting } from '@/lib/utils'
 import {
     FiChevronRight,
     FiHeart,
@@ -70,33 +70,36 @@ const moods = [
 
 // Map service slugs to local images
 const serviceImages: Record<string, string> = {
-    'counselling': '/images/services/counseling.jpg',
-    'coaching': '/images/services/coaching.jpg',
-    'training': '/images/services/exercise.jpg',
-    'mentorship': '/images/services/mentorship.jpg',
-    'consultation': '/images/services/consultation.jpg',
-    'other': '/images/services/diary.jpg',
+    counselling: '/images/services/counseling.jpg',
+    counseling: '/images/services/counseling.jpg',
+    coaching: '/images/services/coaching.jpg',
+    training: '/images/services/exercise.jpg',
+    mentorship: '/images/services/mentorship.jpg',
+    consultation: '/images/services/consultation.jpg',
+    other: '/images/services/diary.jpg',
     'mental-wellness': '/images/services/mental_wellness.jpg',
-    'medical': '/images/services/medical.jpg',
+    medical: '/images/services/medical.jpg',
     'financial-wellness': '/images/services/finance.jpg',
     'social-wellness': '/images/services/community.jpg',
     'work-life': '/images/services/work.jpg',
-    'purpose': '/images/services/spiritual.jpg',
+    purpose: '/images/services/spiritual.jpg',
 }
 
 export default function HomePage() {
     const { user } = useAuthStore()
-    const { todayMood, setTodayMood } = useWellnessStore()
+    const { todayMood, logMood, isMoodLoading } = useWellnessStore()
     const [services, setServices] = useState<Service[]>([])
     const [tip, setTip] = useState<WellnessTip | null>(null)
     const [articles, setArticles] = useState<Article[]>([])
-    const [selectedMood, setSelectedMood] = useState<string | null>(todayMood)
     const [isLoading, setIsLoading] = useState(true)
+
+    // Derive selected mood from store's todayMood
+    const selectedMood = todayMood?.mood ?? null
 
     const fetchData = useCallback(async () => {
         try {
             const [servicesResult, tipResult, articlesResult] = await Promise.all([
-                servicesApi.list(),
+                servicesApi.list().catch(() => ({ services: [] })),
                 contentApi.getDailyTip().catch(() => ({ tip: null })),
                 contentApi.getArticles().catch(() => ({ articles: [] })),
             ])
@@ -114,30 +117,51 @@ export default function HomePage() {
         fetchData()
     }, [fetchData])
 
-    const handleMoodSelect = (moodId: string) => {
-        setSelectedMood(moodId)
-        setTodayMood(moodId)
-        toast.success('Mood logged successfully!')
-    }
-
-    const greeting = () => {
-        const hour = new Date().getHours()
-        if (hour < 12) return 'Good morning'
-        if (hour < 17) return 'Good afternoon'
-        return 'Good evening'
+    const handleMoodSelect = async (moodId: string) => {
+        try {
+            const result = await logMood(moodId)
+            if (result.points_earned > 0) {
+                toast.success(`Mood logged! You earned ${result.points_earned} points`)
+            } else {
+                toast.success('Mood logged successfully!')
+            }
+        } catch (error) {
+            console.error('Failed to log mood:', error)
+            toast.error('Failed to log mood')
+        }
     }
 
     const firstName = user?.name?.split(' ')[0] || 'there'
 
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <AppHeader showGreeting={false} />
+                <main className="container mx-auto px-4 py-6 space-y-6 pb-24 max-w-4xl">
+                    <div className="animate-pulse space-y-6">
+                        <div className="h-16 bg-gray-200 rounded-lg" />
+                        <div className="h-20 bg-gray-200 rounded-2xl" />
+                        <div className="h-32 bg-gray-200 rounded-2xl" />
+                        <div className="grid grid-cols-3 gap-3">
+                            {[1, 2, 3, 4, 5, 6].map(i => (
+                                <div key={i} className="h-24 bg-gray-200 rounded-xl" />
+                            ))}
+                        </div>
+                    </div>
+                </main>
+            </div>
+        )
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
-            <AppHeader />
+            <AppHeader showGreeting={false} />
 
             <main className="container mx-auto px-4 py-6 space-y-6 pb-24 max-w-4xl">
                 {/* Greeting */}
                 <section>
                     <h1 className="text-2xl font-bold text-gray-900">
-                        {greeting()}, {firstName}!
+                        {getGreeting()}, {firstName}!
                     </h1>
                     <p className="text-gray-600 mt-1">
                         How are you feeling today?
@@ -151,11 +175,13 @@ export default function HomePage() {
                             <button
                                 key={mood.id}
                                 onClick={() => handleMoodSelect(mood.id)}
+                                disabled={isMoodLoading}
                                 className={cn(
                                     'w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all',
                                     selectedMood === mood.id
                                         ? 'bg-primary/10 ring-2 ring-primary scale-110'
-                                        : 'hover:bg-gray-100'
+                                        : 'hover:bg-gray-100',
+                                    isMoodLoading && 'opacity-50 cursor-not-allowed'
                                 )}>
                                 {mood.emoji}
                             </button>
