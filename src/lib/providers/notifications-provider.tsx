@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 declare global {
     interface Window {
         Pusher: typeof Pusher
-        Echo: Echo<unknown>
+        Echo: Echo<'reverb'>
     }
 }
 
