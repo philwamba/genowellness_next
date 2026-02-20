@@ -38,6 +38,9 @@ export default function RegisterPage() {
             router.push('/home')
         } catch (error) {
             console.error('Registration failed:', error)
+            // Clear only password fields on error
+            setPassword('')
+            setConfirmPassword('')
         }
     }
 
