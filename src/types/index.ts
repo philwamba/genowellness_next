@@ -311,13 +311,20 @@ export interface WellnessTip {
 }
 
 // Notification Types
+export interface NotificationData {
+    message?: string
+    body?: string
+    title?: string
+    [key: string]: string | number | boolean | null | undefined
+}
+
 export interface Notification {
     id: number
     uuid: string
     type: string
     title: string
     body: string | null
-    data: Record<string, any> | null
+    data: NotificationData | null
     action_url: string | null
     is_read: boolean
     read_at: string | null

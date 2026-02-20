@@ -12,7 +12,6 @@ import { formatDateTime, formatCurrency, cn, getInitials } from '@/lib/utils'
 import {
     FiCalendar,
     FiClock,
-    FiMapPin,
     FiVideo,
     FiMessageSquare,
     FiX,

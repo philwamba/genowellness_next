@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Echo from 'laravel-echo'
 import Pusher from 'pusher-js'
 import { messaging } from '@/lib/firebase/config'
@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 declare global {
     interface Window {
         Pusher: typeof Pusher
-        Echo: Echo<any>
+        Echo: Echo<unknown>
     }
 }
 
@@ -29,7 +29,6 @@ export function NotificationsProvider({
 }) {
     const user = useAuthStore((state) => state.user)
     const { mutate, mutateUnreadCount } = useNotifications()
-    const [echo, setEcho] = useState<Echo<any> | null>(null)
 
     useEffect(() => {
         if (!user) return
@@ -58,8 +57,6 @@ export function NotificationsProvider({
                 },
             },
         })
-
-        setEcho(echoInstance)
 
         // 2. Listen for Notifications
         console.log(`Listening to App.Models.User.${user.id}`)

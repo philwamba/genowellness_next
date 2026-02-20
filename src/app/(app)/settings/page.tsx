@@ -87,8 +87,9 @@ export default function SettingsPage() {
             await authApi.updateProfile({ name, phone_number: phone })
             await mutate()
             toast.success('Profile updated successfully')
-        } catch (error: any) {
-            toast.error(error.message || 'Failed to update profile')
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to update profile'
+            toast.error(message)
         } finally {
             setIsLoading(false)
         }
@@ -115,8 +116,9 @@ export default function SettingsPage() {
             setNewPassword('')
             setConfirmPassword('')
             toast.success('Password changed successfully')
-        } catch (error: any) {
-             toast.error(error.message || 'Failed to change password')
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Failed to change password'
+            toast.error(message)
         } finally {
             setIsLoading(false)
         }
@@ -133,7 +135,7 @@ export default function SettingsPage() {
 
         try {
             await authApi.updateSettings({ [key]: newValue })
-        } catch (error: any) {
+        } catch {
             // Revert on error
             setNotifications(prev => ({
                 ...prev,
