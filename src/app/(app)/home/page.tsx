@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/stores/auth-store'
 import { useWellnessStore } from '@/lib/stores/wellness-store'
 import { contentApi, servicesApi } from '@/lib/api/client'
 import { Service, WellnessTip, Article } from '@/types'
-import { getMoodEmoji, cn } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import {
     FiChevronRight,
     FiHeart,
@@ -85,19 +85,157 @@ const serviceImages: Record<string, string> = {
 }
 
 export default function HomePage() {
-    // ... existing code ...
+    const { user } = useAuthStore()
+    const { todayMood, setTodayMood } = useWellnessStore()
+    const [services, setServices] = useState<Service[]>([])
+    const [tip, setTip] = useState<WellnessTip | null>(null)
+    const [articles, setArticles] = useState<Article[]>([])
+    const [selectedMood, setSelectedMood] = useState<string | null>(todayMood)
+    const [isLoading, setIsLoading] = useState(true)
+
+    const fetchData = useCallback(async () => {
+        try {
+            const [servicesResult, tipResult, articlesResult] = await Promise.all([
+                servicesApi.list(),
+                contentApi.getDailyTip().catch(() => ({ tip: null })),
+                contentApi.getArticles().catch(() => ({ articles: [] })),
+            ])
+            setServices(servicesResult.services)
+            setTip(tipResult.tip as WellnessTip | null)
+            setArticles((articlesResult.articles as Article[]).slice(0, 3))
+        } catch (error) {
+            console.error('Failed to fetch home data:', error)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [])
+
+    useEffect(() => {
+        fetchData()
+    }, [fetchData])
+
+    const handleMoodSelect = (moodId: string) => {
+        setSelectedMood(moodId)
+        setTodayMood(moodId)
+        toast.success('Mood logged successfully!')
+    }
+
+    const greeting = () => {
+        const hour = new Date().getHours()
+        if (hour < 12) return 'Good morning'
+        if (hour < 17) return 'Good afternoon'
+        return 'Good evening'
+    }
+
+    const firstName = user?.name?.split(' ')[0] || 'there'
 
     return (
-        // ... existing code ...
+        <div className="min-h-screen bg-gray-50">
+            <AppHeader />
+
+            <main className="container mx-auto px-4 py-6 space-y-6 pb-24 max-w-4xl">
+                {/* Greeting */}
+                <section>
+                    <h1 className="text-2xl font-bold text-gray-900">
+                        {greeting()}, {firstName}!
+                    </h1>
+                    <p className="text-gray-600 mt-1">
+                        How are you feeling today?
+                    </p>
+                </section>
+
+                {/* Mood Tracker */}
+                <section className="bg-white rounded-2xl p-4 shadow-sm">
+                    <div className="flex justify-between items-center">
+                        {moods.map(mood => (
+                            <button
+                                key={mood.id}
+                                onClick={() => handleMoodSelect(mood.id)}
+                                className={cn(
+                                    'w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all',
+                                    selectedMood === mood.id
+                                        ? 'bg-primary/10 ring-2 ring-primary scale-110'
+                                        : 'hover:bg-gray-100'
+                                )}>
+                                {mood.emoji}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* Daily Wellness Tip */}
+                {tip && (
+                    <section className="bg-gradient-to-r from-primary to-orange-500 rounded-2xl p-4 text-white">
+                        <p className="text-sm font-medium opacity-90">
+                            Daily Tip
+                        </p>
+                        <p className="mt-2 font-semibold">{tip.content}</p>
+                        {tip.category && (
+                            <span className="inline-block mt-3 px-3 py-1 bg-white/20 rounded-full text-xs">
+                                {tip.category}
+                            </span>
+                        )}
+                    </section>
+                )}
+
+                {/* Wellness Categories */}
+                <section>
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="font-semibold text-gray-900">
+                            Explore Wellness
+                        </h2>
+                        <Link
+                            href="/services"
+                            className="text-primary text-sm flex items-center">
+                            See all <FiChevronRight className="ml-1" />
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                        {wellnessCategories.map(category => {
+                            const Icon = category.icon
+                            return (
+                                <Link
+                                    key={category.id}
+                                    href={`/wellness/${category.id}`}
+                                    className="bg-white rounded-xl p-4 text-center shadow-sm hover:shadow-md transition-shadow">
+                                    <div
+                                        className={cn(
+                                            'w-10 h-10 rounded-full mx-auto flex items-center justify-center mb-2',
+                                            category.color
+                                        )}>
+                                        <Icon className="w-5 h-5" />
+                                    </div>
+                                    <p className="text-xs font-medium text-gray-700">
+                                        {category.label}
+                                    </p>
+                                </Link>
+                            )
+                        })}
+                    </div>
+                </section>
+
+                {/* Services */}
+                <section>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-semibold text-gray-900">
+                            Our Services
+                        </h2>
+                        <Link
+                            href="/services"
+                            className="text-primary text-sm font-medium flex items-center hover:underline">
+                            See all <FiChevronRight className="ml-1" />
+                        </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                         {services.slice(0, 4).map(service => {
                             const imageSrc = serviceImages[service.slug] || service.image_path
-                            
+
                             return (
                                 <Link
                                     key={service.id}
                                     href={`/services/${service.slug}`}
-                                    className="flex-shrink-0 w-36 bg-white rounded-xl overflow-hidden shadow-sm">
-                                    <div className="relative h-20 bg-gray-200">
+                                    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                                    <div className="relative h-28 sm:h-32 bg-gray-200">
                                         {imageSrc && (
                                             <Image
                                                 src={imageSrc}
@@ -108,16 +246,16 @@ export default function HomePage() {
                                         )}
                                     </div>
                                     <div className="p-3">
-                    // ... existing code ...
-                                    <p className="font-medium text-gray-900 text-sm">
-                                        {service.title}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                                        {service.subtitle}
-                                    </p>
-                                </div>
-                            </Link>
-                        ))}
+                                        <p className="font-medium text-gray-900 text-sm line-clamp-1">
+                                            {service.title}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                                            {service.subtitle}
+                                        </p>
+                                    </div>
+                                </Link>
+                            )
+                        })}
                     </div>
                 </section>
 
